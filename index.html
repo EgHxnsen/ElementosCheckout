@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lushé — Seu Protocolo de Botox Coreano Caseiro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      /* warm greige / espresso neutrals, single dusty clay-rosé accent */
+      --page:    oklch(0.935 0.008 70);     /* outer canvas */
+      --surface: oklch(0.987 0.004 75);     /* the sheet */
+      --surface-2: oklch(0.965 0.006 70);   /* inset panels */
+      --ink:     oklch(0.265 0.012 55);     /* espresso text */
+      --ink-soft: oklch(0.46 0.012 55);     /* muted text */
+      --ink-faint: oklch(0.62 0.01 60);     /* captions */
+      --line:    oklch(0.905 0.008 65);     /* hairlines */
+      --line-2:  oklch(0.86 0.01 60);       /* stronger hairline */
+
+      --clay:    oklch(0.64 0.095 32);      /* primary accent */
+      --clay-d:  oklch(0.55 0.1 30);        /* pressed / deep */
+      --clay-wash: oklch(0.955 0.018 40);   /* soft tint bg */
+      --clay-line: oklch(0.86 0.04 38);
+
+      --sage:    oklch(0.66 0.045 165);     /* "goal" cool counterpoint */
+      --sage-wash: oklch(0.95 0.02 165);
+
+      --r:  14px;
+      --r-lg: 22px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --maxw: 460px;
+    }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      background: var(--page);
+      font-family: 'Schibsted Grotesk', -apple-system, system-ui, sans-serif;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      line-height: 1.5;
+    }
+
+    .serif {
+      font-family: 'Bodoni Moda', Georgia, serif;
+      font-weight: 400;
+    }
+
+    .page {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      background: var(--surface);
+      min-height: 100vh;
+      box-shadow: 0 0 0 1px var(--line), 0 30px 80px -40px oklch(0.4 0.03 50 / 0.25);
+    }
+
+    button { font-family: inherit; cursor: pointer; }
+    strong { font-weight: 600; }
+
+    .eyebrow {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--clay-d);
+    }
+
+    /* ─── STICKY HEADER ─── */
+    .sticky {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: oklch(0.987 0.004 75 / 0.82);
+      backdrop-filter: saturate(140%) blur(12px);
+      -webkit-backdrop-filter: saturate(140%) blur(12px);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 20px;
+      gap: 14px;
+    }
+
+    .brand {
+      font-family: 'Bodoni Moda', serif;
+      font-size: 21px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      line-height: 1;
+    }
+    .brand sup {
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      vertical-align: super;
+      color: var(--ink-faint);
+    }
+
+    .timer-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+    .timer-label {
+      font-size: 9.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+    .timer-val {
+      font-variant-numeric: tabular-nums;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+    }
+    .timer-val .sep { color: var(--clay); margin: 0 1px; }
+
+    /* ─── SOCIAL PROOF ─── */
+    .social-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 11px 20px;
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-2);
+    }
+    .pulse {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--sage);
+      box-shadow: 0 0 0 0 oklch(0.66 0.045 165 / 0.5);
+      animation: pulse 2.4s var(--ease) infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 oklch(0.66 0.045 165 / 0.5); }
+      70% { box-shadow: 0 0 0 7px oklch(0.66 0.045 165 / 0); }
+      100% { box-shadow: 0 0 0 0 oklch(0.66 0.045 165 / 0); }
+    }
+
+    /* ─── EMAIL TICKER ─── */
+    .email-row {
+      display: flex;
+      gap: 8px;
+      padding: 9px 20px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+    }
+    .ebadge {
+      border: 1px solid var(--line-2);
+      border-radius: 100px;
+      padding: 6px 13px;
+      font-size: 11.5px;
+      color: var(--ink-soft);
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: opacity 0.4s var(--ease);
+      font-variant-numeric: tabular-nums;
+    }
+    .ebadge b { color: var(--ink); font-weight: 600; }
+
+    /* ─── HERO ─── */
+    .hero { padding: clamp(28px, 8vw, 40px) 20px 22px; }
+
+    .hero .eyebrow { display: block; text-align: center; margin-bottom: 14px; }
+
+    .hero h1 {
+      font-family: 'Bodoni Moda', serif;
+      font-weight: 400;
+      font-size: clamp(27px, 8.5vw, 34px);
+      line-height: 1.12;
+      text-align: center;
+      letter-spacing: -0.01em;
+      margin: 0 auto 10px;
+      max-width: 13ch;
+    }
+    .hero h1 em { font-style: italic; color: var(--clay-d); }
+
+    .hero .lede {
+      text-align: center;
+      font-size: 14px;
+      color: var(--ink-soft);
+      max-width: 32ch;
+      margin: 0 auto clamp(22px, 6vw, 28px);
+      line-height: 1.55;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+    .stat-box {
+      padding: 16px 16px 15px;
+    }
+    .stat-box + .stat-box { border-left: 1px solid var(--line); }
+    .stat-box .sl {
+      font-size: 10.5px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      display: block;
+      margin-bottom: 9px;
+    }
+    .stat-box .sv {
+      font-family: 'Bodoni Moda', serif;
+      font-size: 19px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .mini-bars { display: flex; gap: 4px; margin-top: 2px; }
+    .mb { height: 4px; border-radius: 100px; flex: 1; }
+    .mb.f { background: var(--clay); }
+    .mb.e { background: var(--line-2); }
+    .sn {
+      font-size: 11px; color: var(--clay-d); font-weight: 500;
+      margin-top: 10px; display: flex; align-items: center; gap: 5px;
+    }
+    .sn svg { width: 13px; height: 13px; }
+
+    .lvl-bars { display: flex; align-items: flex-end; gap: 4px; margin-top: 11px; height: 26px; }
+    .lb { width: 6px; border-radius: 100px; }
+    .lb.f { background: var(--clay); }
+    .lb.e { background: var(--line-2); }
+
+    /* ─── PRIMARY CTA ─── */
+    .cta-wrap { padding: 0 20px clamp(20px, 6vw, 26px); }
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      width: 100%;
+      background: var(--clay);
+      color: var(--surface);
+      border: none;
+      border-radius: var(--r);
+      padding: 18px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      transition: background 0.3s var(--ease), transform 0.15s var(--ease);
+    }
+    .btn-primary:hover { background: var(--clay-d); }
+    .btn-primary:active { transform: scale(0.985); }
+    .btn-primary .sub {
+      font-weight: 500;
+      opacity: 0.85;
+      font-variant-numeric: tabular-nums;
+    }
+    .btn-primary svg { width: 16px; height: 16px; }
+
+    /* ─── GUARANTEE ─── */
+    .guarantee {
+      margin: 0 20px clamp(28px, 7vw, 36px);
+      background: var(--clay-wash);
+      border: 1px solid var(--clay-line);
+      border-radius: var(--r);
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .guarantee svg { width: 30px; height: 30px; flex-shrink: 0; color: var(--clay-d); }
+    .g-text { font-size: 13px; line-height: 1.5; color: var(--ink-soft); }
+    .g-text strong { color: var(--ink); }
+
+    /* ─── SECTION SHELL ─── */
+    .section { padding: clamp(34px, 9vw, 52px) 20px; }
+    .section + .section { border-top: 1px solid var(--line); }
+    .section-head { margin-bottom: clamp(22px, 6vw, 30px); }
+    .section-head.center { text-align: center; }
+    .section-head .eyebrow { margin-bottom: 12px; display: block; }
+    .section-head h2 {
+      font-family: 'Bodoni Moda', serif;
+      font-weight: 400;
+      font-size: clamp(23px, 6.5vw, 29px);
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+    }
+    .section-head h2 em { font-style: italic; color: var(--clay-d); }
+    .section-head p {
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      margin-top: 11px;
+      line-height: 1.55;
+      max-width: 38ch;
+    }
+    .section-head.center p { margin-left: auto; margin-right: auto; }
+
+    /* ─── BEFORE / AFTER ─── */
+    .ba-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .ba-card {
+      border-radius: var(--r);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+    }
+    .ba-photo {
+      aspect-ratio: 3 / 4;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(120% 80% at 50% 0%, oklch(0.96 0.02 38) 0%, var(--surface-2) 70%);
+    }
+    .ba-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ba-empty {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--ink-faint); padding: 16px; text-align: center;
+    }
+    .ba-empty svg { width: 26px; height: 26px; opacity: 0.7; }
+    .ba-empty span { font-size: 10.5px; letter-spacing: 0.02em; }
+    .ba-tag {
+      position: absolute; top: 10px; left: 10px;
+      background: oklch(0.987 0.004 75 / 0.9);
+      backdrop-filter: blur(4px);
+      border-radius: 100px;
+      padding: 4px 11px;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+    }
+    .ba-card.after .ba-tag { color: var(--clay-d); }
+    .ba-caption {
+      padding: 11px 13px;
+      font-size: 11.5px;
+      color: var(--ink-soft);
+      border-top: 1px solid var(--line);
+    }
+
+    /* ─── AGORA / META ─── */
+    .comp {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+    .comp-col { padding: 18px 16px; }
+    .comp-col + .comp-col { border-left: 1px solid var(--line); }
+    .comp-col h3 {
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ink-faint); margin-bottom: 16px; font-weight: 600;
+    }
+    .comp-col.goal h3 { color: var(--sage); }
+    .ci { margin-bottom: 15px; }
+    .ci:last-child { margin-bottom: 0; }
+    .ci-label {
+      display: flex; justify-content: space-between;
+      font-size: 12px; margin-bottom: 6px; color: var(--ink-soft);
+    }
+    .ci-label b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .ci-track { height: 5px; background: var(--line-2); border-radius: 100px; overflow: hidden; }
+    .ci-fill { height: 100%; border-radius: 100px; width: 0; transition: width 1.1s var(--ease); }
+    .ci-fill.now { background: var(--clay); }
+    .ci-fill.goal { background: var(--sage); }
+
+    /* ─── STEPS ─── */
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      padding: 20px 0;
+      position: relative;
+    }
+    .step + .step { border-top: 1px solid var(--line); }
+    .step-num {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--clay-line);
+      background: var(--clay-wash);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--clay-d);
+    }
+    .step-num svg { width: 19px; height: 19px; }
+    .step-body h4 { font-size: 14.5px; font-weight: 600; margin-bottom: 5px; line-height: 1.3; }
+    .step-body p { font-size: 12.5px; color: var(--ink-soft); line-height: 1.55; }
+    .step-body .idx {
+      font-family: 'Bodoni Moda', serif; font-style: italic;
+      font-size: 12px; color: var(--clay-d); margin-right: 4px;
+    }
+
+    /* ─── PRICING ─── */
+    .plans { display: flex; flex-direction: column; gap: 11px; }
+    .plan {
+      border: 1px solid var(--line-2);
+      border-radius: var(--r);
+      padding: 17px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      background: var(--surface);
+      transition: border-color 0.25s var(--ease), background 0.25s var(--ease);
+      text-align: left;
+      width: 100%;
+    }
+    .plan.sel { border-color: var(--clay); background: var(--clay-wash); }
+    .plan-badge {
+      position: absolute; top: -9px; right: 16px;
+      background: var(--clay); color: var(--surface);
+      font-size: 9.5px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px; border-radius: 100px;
+    }
+    .radio {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 1.5px solid var(--line-2); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.2s var(--ease);
+    }
+    .plan.sel .radio { border-color: var(--clay); }
+    .radio .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--clay); transform: scale(0); transition: transform 0.2s var(--ease); }
+    .plan.sel .radio .dot { transform: scale(1); }
+    .plan-info { flex: 1; }
+    .plan-name { font-size: 13.5px; font-weight: 600; }
+    .plan-desc { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+    .plan-price { text-align: right; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; }
+    .plan-old { font-size: 11px; color: var(--ink-faint); text-decoration: line-through; }
+    .plan-new { font-family: 'Bodoni Moda', serif; font-size: 21px; font-weight: 500; line-height: 1.1; margin-top: 1px; }
+    .plan.sel .plan-new { color: var(--clay-d); }
+    .plan-per { font-size: 10.5px; color: var(--ink-faint); }
+
+    .checkout-note {
+      text-align: center; font-size: 11px; color: var(--ink-faint);
+      margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .checkout-note svg { width: 12px; height: 12px; }
+
+    /* ─── RECEBE ─── */
+    .receive { display: flex; flex-direction: column; gap: 1px; }
+    .r-item {
+      display: grid; grid-template-columns: auto 1fr; gap: 14px;
+      padding: 16px 0; align-items: flex-start;
+    }
+    .r-item + .r-item { border-top: 1px solid var(--line); }
+    .r-icon { width: 22px; height: 22px; color: var(--clay-d); margin-top: 1px; }
+    .r-item h4 { font-size: 13.5px; font-weight: 600; margin-bottom: 3px; }
+    .r-item p { font-size: 12px; color: var(--ink-soft); line-height: 1.5; }
+
+    /* ─── TESTIMONIALS ─── */
+    .cases { display: flex; flex-direction: column; gap: 14px; }
+    .tcard {
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 18px;
+    }
+    .stars { display: flex; gap: 2px; margin-bottom: 9px; color: var(--clay); }
+    .stars svg { width: 14px; height: 14px; }
+    .ttext { font-size: 13.5px; line-height: 1.6; margin-bottom: 11px; }
+    .ttext .serif { font-style: italic; }
+    .tauthor { display: flex; align-items: center; gap: 9px; font-size: 11.5px; color: var(--ink-soft); }
+    .tav {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--clay-wash); color: var(--clay-d);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600; flex-shrink: 0;
+    }
+    .tauthor b { color: var(--ink); font-weight: 600; }
+
+    /* ─── SECURITY ─── */
+    .sec-list { display: flex; flex-direction: column; gap: 16px; }
+    .sec-item { display: grid; grid-template-columns: auto 1fr; gap: 13px; align-items: flex-start; }
+    .sec-item svg { width: 20px; height: 20px; color: var(--ink-soft); margin-top: 1px; }
+    .sec-item h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .sec-item p { font-size: 11.5px; color: var(--ink-soft); line-height: 1.45; }
+
+    /* ─── FINAL CTA ─── */
+    .final {
+      background: var(--surface-2);
+      padding: clamp(36px, 9vw, 52px) 20px;
+      text-align: center;
+      border-top: 1px solid var(--line);
+    }
+    .final h2 {
+      font-family: 'Bodoni Moda', serif; font-weight: 400;
+      font-size: clamp(24px, 7vw, 30px); line-height: 1.15; letter-spacing: -0.01em;
+      margin-bottom: 10px;
+    }
+    .final p { font-size: 13.5px; color: var(--ink-soft); margin-bottom: 22px; max-width: 32ch; margin-left: auto; margin-right: auto; }
+    .final .timer-inline { color: var(--clay-d); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      padding: 26px 20px 36px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--ink-faint);
+      line-height: 1.7;
+      border-top: 1px solid var(--line);
+    }
+    .footer .brand { font-size: 15px; color: var(--ink-soft); margin-bottom: 10px; display: inline-block; }
+    .footer a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--line-2); }
+
+    /* ─── REVEAL MOTION ─── */
+    .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.7s var(--ease), transform 0.7s var(--ease); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    @media (max-width: 360px) {
+      .ba-grid { gap: 8px; }
+      .section { padding-left: 16px; padding-right: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ══ STICKY HEADER ══ -->
+  <header class="sticky">
+    <div class="brand">LUSHÉ<sup>®</sup></div>
+    <div class="timer-wrap">
+      <span class="timer-label">Oferta reservada</span>
+      <span class="timer-val"><span id="t1">09:40</span></span>
+    </div>
+  </header>
+
+  <!-- ══ SOCIAL PROOF ══ -->
+  <div class="social-bar">
+    <span class="pulse"></span>
+    <span><strong>496 mulheres</strong> iniciaram o protocolo nesta última hora</span>
+  </div>
+
+  <!-- ══ EMAIL TICKER ══ -->
+  <div class="email-row">
+    <div class="ebadge" id="ea"><b>fa****@gmail.com</b> · Protocolo 3 Meses</div>
+    <div class="ebadge" id="eb"><b>aqx****@gmail.com</b> · Protocolo 3 Meses</div>
+  </div>
+
+  <!-- ══ HERO ══ -->
+  <section class="hero">
+    <span class="eyebrow">Diagnóstico concluído</span>
+    <h1 class="serif">Seu protocolo de <em>Botox Coreano Caseiro</em> está pronto</h1>
+    <p class="lede">Um ritual de firmeza desenhado para a sua idade e tipo de pele. Resultados visíveis em 28 dias, no conforto de casa.</p>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <span class="sl">Com base na sua idade</span>
+        <div class="mini-bars">
+          <span class="mb f"></span><span class="mb f"></span><span class="mb f"></span><span class="mb f"></span><span class="mb f"></span>
+        </div>
+        <span class="sn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Protocolo simples de seguir
+        </span>
+      </div>
+      <div class="stat-box">
+        <span class="sl">Potencial de firmeza</span>
+        <span class="sv">Avançado</span>
+        <div class="lvl-bars">
+          <span class="lb f" style="height:9px"></span>
+          <span class="lb f" style="height:15px"></span>
+          <span class="lb f" style="height:21px"></span>
+          <span class="lb f" style="height:26px"></span>
+          <span class="lb e" style="height:26px"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PRIMARY CTA ══ -->
+  <div class="cta-wrap">
+    <button class="btn-primary" data-scroll="pricing">
+      Reservar meu protocolo
+      <span class="sub">· <span id="t2">09:40</span></span>
+    </button>
+  </div>
+
+  <!-- ══ GUARANTEE ══ -->
+  <div class="guarantee">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+    <p class="g-text">Complete <strong>4 semanas</strong> do seu protocolo personalizado. Se não vir resultado, devolvemos <strong>100% do valor</strong> — sem perguntas.</p>
+  </div>
+
+  <!-- ══ BEFORE / AFTER ══ -->
+  <section class="section reveal">
+    <div class="section-head">
+      <span class="eyebrow">Antes &amp; depois</span>
+      <h2 class="serif">A transformação <em>real</em> de quem seguiu o ritual</h2>
+    </div>
+    <div class="ba-grid">
+      <div class="ba-card before">
+        <div class="ba-photo">
+          <span class="ba-tag">Antes</span>
+          <div class="ba-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>
+            <span>sua foto · semana 0</span>
+          </div>
+        </div>
+        <div class="ba-caption">Linhas finas e perda de firmeza no contorno.</div>
+      </div>
+      <div class="ba-card after">
+        <div class="ba-photo">
+          <span class="ba-tag">Depois</span>
+          <div class="ba-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>
+            <span>sua foto · semana 4</span>
+          </div>
+        </div>
+        <div class="ba-caption">Contorno mais definido e pele visivelmente lisa.</div>
+      </div>
+    </div>
+
+    <!-- AGORA / META -->
+    <div class="comp">
+      <div class="comp-col now">
+        <h3>Agora</h3>
+        <div class="ci"><div class="ci-label">Colágeno <b>32%</b></div><div class="ci-track"><div class="ci-fill now" data-w="32"></div></div></div>
+        <div class="ci"><div class="ci-label">Firmeza <b>41%</b></div><div class="ci-track"><div class="ci-fill now" data-w="41"></div></div></div>
+        <div class="ci"><div class="ci-label">Elasticidade <b>28%</b></div><div class="ci-track"><div class="ci-fill now" data-w="28"></div></div></div>
+      </div>
+      <div class="comp-col goal">
+        <h3>Meta · 28 dias</h3>
+        <div class="ci"><div class="ci-label">Colágeno <b>78%</b></div><div class="ci-track"><div class="ci-fill goal" data-w="78"></div></div></div>
+        <div class="ci"><div class="ci-label">Firmeza <b>90%</b></div><div class="ci-track"><div class="ci-fill goal" data-w="90"></div></div></div>
+        <div class="ci"><div class="ci-label">Elasticidade <b>82%</b></div><div class="ci-track"><div class="ci-fill goal" data-w="82"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ COMO FUNCIONA ══ -->
+  <section class="section reveal">
+    <div class="section-head center">
+      <span class="eyebrow">Como funciona</span>
+      <h2 class="serif">Garantia de resultado em <em>três passos</em></h2>
+      <p>Conclua 28 dias do seu protocolo personalizado, registe os seus resultados e receba o seu dinheiro de volta se não estiver satisfeita.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>
+        </div>
+        <div class="step-body">
+          <h4><span class="idx">01</span>Siga o ritual por 4 semanas</h4>
+          <p>Aplique o protocolo diário de Botox Coreano Caseiro, calibrado para o seu objetivo e tipo de pele.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>
+        </div>
+        <div class="step-body">
+          <h4><span class="idx">02</span>Registe a sua evolução</h4>
+          <p>Partilhe as capturas da secção "Resultados Semanais" dentro do seu programa completo.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5a2.5 2 0 0 0-2.5-1.5c-1.4 0-2.5.7-2.5 2s1.1 1.6 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2a2.5 2 0 0 1-2.5-1.5"/><path d="M12 6.5v1M12 16.5v1"/></svg>
+        </div>
+        <div class="step-body">
+          <h4><span class="idx">03</span>Receba 100% de volta</h4>
+          <p>Confirmados os resultados, devolvemos o valor integral. Sem burocracia, sem perguntas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PRICING ══ -->
+  <section class="section reveal" id="pricing">
+    <div class="section-head center">
+      <span class="eyebrow">Escolha seu plano</span>
+      <h2 class="serif">Comece o seu <em>ritual</em> hoje</h2>
+      <p>Desconto de boas-vindas de 68% aplicado automaticamente. Preço reservado por <span class="timer-inline" id="t3">09:40</span>.</p>
+    </div>
+    <div class="plans" id="plans">
+      <button class="plan" data-plan="1">
+        <span class="radio"><span class="dot"></span></span>
+        <span class="plan-info">
+          <span class="plan-name">Protocolo 1 Mês</span>
+          <span class="plan-desc">Experimente o ritual completo</span>
+        </span>
+        <span class="plan-price">
+          <span class="plan-old">R$ 97</span>
+          <span class="plan-new">R$ 47</span>
+          <span class="plan-per">por mês</span>
+        </span>
+      </button>
+      <button class="plan sel" data-plan="3">
+        <span class="plan-badge">Mais escolhido</span>
+        <span class="radio"><span class="dot"></span></span>
+        <span class="plan-info">
+          <span class="plan-name">Protocolo 3 Meses</span>
+          <span class="plan-desc">Resultado completo + garantia</span>
+        </span>
+        <span class="plan-price">
+          <span class="plan-old">R$ 291</span>
+          <span class="plan-new">R$ 94</span>
+          <span class="plan-per">R$ 31 / mês</span>
+        </span>
+      </button>
+      <button class="plan" data-plan="6">
+        <span class="radio"><span class="dot"></span></span>
+        <span class="plan-info">
+          <span class="plan-name">Protocolo 6 Meses</span>
+          <span class="plan-desc">Manutenção e resultados duradouros</span>
+        </span>
+        <span class="plan-price">
+          <span class="plan-old">R$ 582</span>
+          <span class="plan-new">R$ 147</span>
+          <span class="plan-per">R$ 24 / mês</span>
+        </span>
+      </button>
+    </div>
+
+    <button class="btn-primary" style="margin-top:16px" id="buy">
+      Reservar meu protocolo
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+    <p class="checkout-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Pagamento seguro · Cancele quando quiser
+    </p>
+  </section>
+
+  <!-- ══ O QUE VOCÊ RECEBE ══ -->
+  <section class="section reveal">
+    <div class="section-head">
+      <span class="eyebrow">No seu protocolo</span>
+      <h2 class="serif">Tudo o que você <em>recebe</em></h2>
+    </div>
+    <div class="receive">
+      <div class="r-item">
+        <svg class="r-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="9"/></svg>
+        <div><h4>Protocolo diário personalizado</h4><p>Passo a passo calibrado para a sua idade, tipo de pele e objetivo de firmeza.</p></div>
+      </div>
+      <div class="r-item">
+        <svg class="r-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        <div><h4>Guia de técnicas coreanas</h4><p>Massagens de lifting e ginástica facial passo a passo, em vídeo.</p></div>
+      </div>
+      <div class="r-item">
+        <svg class="r-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        <div><h4>Acompanhamento semanal</h4><p>Registo de evolução com fotos comparativas e métricas de firmeza.</p></div>
+      </div>
+      <div class="r-item">
+        <svg class="r-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <div><h4>Suporte com especialistas</h4><p>Tire dúvidas diretamente com a nossa equipa de skincare.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ DEPOIMENTOS ══ -->
+  <section class="section reveal">
+    <div class="section-head center">
+      <span class="eyebrow">Histórias reais</span>
+      <h2 class="serif">Mais de <em>40 mil</em> rituais começados</h2>
+    </div>
+    <div class="cases">
+      <article class="tcard">
+        <div class="stars" aria-label="5 de 5 estrelas">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 18l-6.4 3.2L7 14.2l-5-4.8 7-.9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 18l-6.4 3.2L7 14.2l-5-4.8 7-.9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 18l-6.4 3.2L7 14.2l-5-4.8 7-.9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 18l-6.4 3.2L7 14.2l-5-4.8 7-.9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 18l-6.4 3.2L7 14.2l-5-4.8 7-.9z"/></svg>
+        </div>
+        <p class="ttext"><span class="serif">"Aos 47, achei que precisaria de procedimentos. Em 4 semanas o meu contorno mudou. Não acreditei."</span></p>
+        <div class="tauthor"><span class="tav">MR</span> <b>Mariana R.</b> · São Paulo · Protocolo 3 Meses</div>
+      </article>
+      <article class="tcard">
+        <div class="stars" aria-label="5 de 5 estrelas">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 18l-6.4 3.2L7 14.2l-5-4.8 7-.9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 18l-6.4 3.2L7 14.2l-5-4.8 7-.9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 18l-6.4 3.2L7 14.2l-5-4.8 7-.9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 18l-6.4 3.2L7 14.2l-5-4.8 7-.9z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 18l-6.4 3.2L7 14.2l-5-4.8 7-.9z"/></svg>
+        </div>
+        <p class="ttext"><span class="serif">"O ritual leva 6 minutos por dia. A pele do pescoço é o que mais me surpreendeu."</span></p>
+        <div class="tauthor"><span class="tav">CF</span> <b>Carla F.</b> · Lisboa · Protocolo 6 Meses</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ══ SECURITY ══ -->
+  <section class="section reveal">
+    <div class="section-head">
+      <span class="eyebrow">Compra protegida</span>
+      <h2 class="serif">Sem risco, sempre</h2>
+    </div>
+    <div class="sec-list">
+      <div class="sec-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <div><h4>Pagamento criptografado</h4><p>Seus dados protegidos com criptografia de nível bancário.</p></div>
+      </div>
+      <div class="sec-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <div><h4>Garantia de 28 dias</h4><p>Reembolso integral se não vir resultados ao seguir o protocolo.</p></div>
+      </div>
+      <div class="sec-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <div><h4>Cancele quando quiser</h4><p>Sem fidelização. Cancele a renovação em um clique.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FINAL CTA ══ -->
+  <section class="final reveal">
+    <h2 class="serif">Sua pele firme<br>começa hoje</h2>
+    <p>Preço de boas-vindas reservado por <span class="timer-inline" id="t4">09:40</span>. Depois disso, volta ao valor cheio.</p>
+    <button class="btn-primary" data-scroll="pricing" style="max-width:300px;margin:0 auto;">
+      Reservar meu protocolo
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </section>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="footer">
+    <span class="brand serif">LUSHÉ</span><br>
+    © 2026 Lushé Cosmetics. Todos os direitos reservados.<br>
+    Ao assinar você concorda com os <a href="#">Termos de Serviço</a> e a <a href="#">Política de Privacidade</a>.<br>
+    Este programa não substitui orientação médica profissional.
+  </footer>
+
+</div><!-- /page -->
+
+<script>
+  (function () {
+    'use strict';
+
+    // ── SYNCHRONIZED COUNTDOWN ──
+    var secs = 9 * 60 + 40;
+    var ids = ['t1', 't2', 't3', 't4'];
+    function fmt(s) {
+      var m = Math.floor(s / 60), r = s % 60;
+      return m + ':' + (r < 10 ? '0' : '') + r;
+    }
+    function tick() {
+      var v = fmt(secs);
+      ids.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = v;
+      });
+      if (secs > 0) { secs--; setTimeout(tick, 1000); }
+    }
+    tick();
+
+    // ── EMAIL TICKER ──
+    var emails = [
+      ['fa****@gmail.com', 'Protocolo 3 Meses'],
+      ['aqx****@gmail.com', 'Protocolo 3 Meses'],
+      ['ma****@hotmail.com', 'Protocolo 1 Mês'],
+      ['ro****@gmail.com', 'Protocolo 6 Meses'],
+      ['ca****@gmail.com', 'Protocolo 3 Meses'],
+      ['li****@outlook.com', 'Protocolo 1 Mês'],
+      ['ju****@gmail.com', 'Protocolo 3 Meses'],
+      ['pa****@gmail.com', 'Protocolo 6 Meses'],
+      ['be****@gmail.com', 'Protocolo 3 Meses'],
+      ['ta****@hotmail.com', 'Protocolo 1 Mês']
+    ];
+    var ei = 0;
+    var ea = document.getElementById('ea');
+    var eb = document.getElementById('eb');
+    function paint(el, item) { el.innerHTML = '<b>' + item[0] + '</b> · ' + item[1]; }
+    setInterval(function () {
+      ea.style.opacity = '0';
+      eb.style.opacity = '0';
+      setTimeout(function () {
+        ei = (ei + 2) % emails.length;
+        paint(ea, emails[ei]);
+        paint(eb, emails[(ei + 1) % emails.length]);
+        ea.style.opacity = '1';
+        eb.style.opacity = '1';
+      }, 400);
+    }, 2600);
+
+    // ── SMOOTH SCROLL TO PRICING ──
+    document.querySelectorAll('[data-scroll]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var target = document.getElementById(btn.getAttribute('data-scroll'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // ── PLAN SELECTION ──
+    var plans = document.getElementById('plans');
+    plans.addEventListener('click', function (e) {
+      var card = e.target.closest('.plan');
+      if (!card) return;
+      plans.querySelectorAll('.plan').forEach(function (p) { p.classList.remove('sel'); });
+      card.classList.add('sel');
+    });
+    document.getElementById('buy').addEventListener('click', function () {
+      var sel = plans.querySelector('.plan.sel');
+      var name = sel ? sel.querySelector('.plan-name').textContent : 'Protocolo';
+      this.firstChild.textContent = 'Indo para o pagamento · ' + name + ' ';
+    });
+
+    // ── SCROLL REVEAL + BAR FILL ──
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('in');
+        entry.target.querySelectorAll('.ci-fill').forEach(function (bar) {
+          bar.style.width = bar.getAttribute('data-w') + '%';
+        });
+        io.unobserve(entry.target);
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+  })();
+</script>
+</body>
+</html>
