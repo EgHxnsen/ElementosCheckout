@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evolução — Lushé</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --surface: oklch(0.987 0.004 75);
+      --surface-2: oklch(0.965 0.006 70);
+      --ink:     oklch(0.265 0.012 55);
+      --ink-soft: oklch(0.46 0.012 55);
+      --ink-faint: oklch(0.62 0.01 60);
+      --line:    oklch(0.905 0.008 65);
+      --line-2:  oklch(0.86 0.01 60);
+      --clay:    oklch(0.64 0.095 32);
+      --clay-d:  oklch(0.55 0.1 30);
+      --clay-wash: oklch(0.955 0.018 40);
+      --grey:    oklch(0.74 0.012 60);   /* comparison series */
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    body {
+      background: var(--surface);
+      font-family: 'Schibsted Grotesk', -apple-system, system-ui, sans-serif;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 28px 16px;
+    }
+
+    .card {
+      max-width: 520px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 24px 22px 20px;
+      box-shadow: 0 24px 60px -40px oklch(0.4 0.03 50 / 0.3);
+    }
+
+    .head { margin-bottom: 6px; }
+    .eyebrow {
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--clay-d);
+      display: block; margin-bottom: 7px;
+    }
+    .head h1 {
+      font-family: 'Bodoni Moda', Georgia, serif;
+      font-weight: 400; font-size: 28px; line-height: 1.05;
+      letter-spacing: -0.01em;
+    }
+    .head p {
+      font-size: 13px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5;
+    }
+
+    #chart { width: 100%; height: auto; display: block; overflow: visible; margin-top: 6px; }
+
+    text { font-family: 'Schibsted Grotesk', sans-serif; }
+
+    /* axes & grid */
+    .grid-h { stroke: var(--line); stroke-width: 1; }
+    .baseline { stroke: var(--line-2); stroke-width: 1.5; }
+    .tick-lbl { font-size: 10px; fill: var(--ink-faint); font-variant-numeric: tabular-nums; }
+    .week-lbl { font-size: 12px; fill: var(--ink-soft); font-weight: 500; }
+    .axis-cap { font-size: 10px; fill: var(--ink-faint); letter-spacing: 0.04em; text-transform: uppercase; }
+
+    /* series lines */
+    .line { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    #line-clay { stroke: var(--clay); stroke-width: 3; }
+    #line-grey { stroke: var(--grey); stroke-width: 2.4; stroke-dasharray: 1 7; }
+
+    #area { fill: url(#clayFade); }
+
+    .dot { stroke: var(--surface); stroke-width: 2.5; }
+    .dot.clay { fill: var(--clay); }
+    .dot.grey { fill: var(--grey); stroke-width: 2; }
+
+    /* callout */
+    .callout-box { fill: var(--clay); }
+    .callout-txt { fill: var(--surface); font-size: 13px; font-weight: 600; }
+
+    /* legend */
+    .legend-txt { font-size: 12px; fill: var(--ink-soft); }
+    .legend-txt b { fill: var(--ink); }
+
+    /* ── animation ── */
+    @keyframes draw  { to { stroke-dashoffset: 0; } }
+    @keyframes fade  { to { opacity: 1; } }
+
+    #line-clay {
+      stroke-dasharray: 1; stroke-dashoffset: 1; pathLength: 1;
+      animation: draw 1.4s var(--ease) 0.25s forwards;
+    }
+    #line-grey {
+      stroke-dashoffset: 0;
+      opacity: 0; animation: fade 1.2s ease 0.4s forwards;
+    }
+    #area  { opacity: 0; animation: fade 1s ease 0.95s forwards; }
+    .dot   { opacity: 0; }
+    .clay1 { animation: fade 0.3s ease 0.3s  forwards; }
+    .clay2 { animation: fade 0.3s ease 0.72s forwards; }
+    .clay3 { animation: fade 0.3s ease 1.12s forwards; }
+    .clay4 { animation: fade 0.3s ease 1.5s  forwards; }
+    .greyd { animation: fade 0.4s ease 1.0s  forwards; }
+    .callout-g { opacity: 0; animation: fade 0.6s ease 1.65s forwards; }
+    .legend-g  { opacity: 0; animation: fade 0.6s ease 0.5s  forwards; }
+
+    @media (prefers-reduced-motion: reduce) {
+      #line-clay { stroke-dashoffset: 0; animation: none; }
+      .line, .dot, #area, .callout-g, .legend-g, #line-grey { opacity: 1; animation: none; }
+    }
+
+    @media (max-width: 420px) {
+      .card { padding: 20px 16px 16px; }
+      .head h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="head">
+      <span class="eyebrow">Semana a semana</span>
+      <h1>Evolução</h1>
+      <p>Firmeza e colágeno ao longo de 4 semanas de protocolo.</p>
+    </div>
+
+    <svg id="chart" viewBox="0 0 520 340" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Gráfico de evolução: o protocolo Botox Coreano Caseiro supera tratamentos tradicionais em 4 semanas.">
+
+      <defs>
+        <linearGradient id="clayFade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="oklch(0.64 0.095 32)" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="oklch(0.64 0.095 32)" stop-opacity="0.02"/>
+        </linearGradient>
+      </defs>
+
+      <!-- horizontal gridlines (25/50/75/100) -->
+      <line class="grid-h" x1="64" y1="220" x2="488" y2="220"/>
+      <line class="grid-h" x1="64" y1="170" x2="488" y2="170"/>
+      <line class="grid-h" x1="64" y1="120" x2="488" y2="120"/>
+      <line class="grid-h" x1="64" y1="70"  x2="488" y2="70"/>
+
+      <!-- y tick labels -->
+      <text class="tick-lbl" x="54" y="224" text-anchor="end">25</text>
+      <text class="tick-lbl" x="54" y="174" text-anchor="end">50</text>
+      <text class="tick-lbl" x="54" y="124" text-anchor="end">75</text>
+      <text class="tick-lbl" x="54" y="74"  text-anchor="end">100</text>
+
+      <!-- baseline -->
+      <line class="baseline" x1="64" y1="270" x2="488" y2="270"/>
+
+      <!-- area between lines -->
+      <path id="area" d="
+        M 64,250
+        C 120,250 150,180 200,180
+        C 250,180 286,124 336,120
+        C 386,116 430,86 472,78
+        L 472,222
+        C 428,225 382,229 336,232
+        C 290,235 244,238 200,240
+        C 156,242 120,250 64,250 Z"/>
+
+      <!-- comparison line (traditional products) -->
+      <path id="line-grey" class="line" d="
+        M 64,250
+        C 120,250 156,242 200,240
+        C 244,238 290,235 336,232
+        C 382,229 428,225 472,222"/>
+
+      <!-- protocol line -->
+      <path id="line-clay" class="line" pathLength="1" d="
+        M 64,250
+        C 120,250 150,180 200,180
+        C 250,180 286,124 336,120
+        C 386,116 430,86 472,78"/>
+
+      <!-- grey dots -->
+      <circle class="dot grey greyd" cx="200" cy="240" r="4.5"/>
+      <circle class="dot grey greyd" cx="336" cy="232" r="4.5"/>
+      <circle class="dot grey greyd" cx="472" cy="222" r="4.5"/>
+
+      <!-- clay dots -->
+      <circle class="dot clay clay1" cx="64"  cy="250" r="5.5"/>
+      <circle class="dot clay clay2" cx="200" cy="180" r="5.5"/>
+      <circle class="dot clay clay3" cx="336" cy="120" r="5.5"/>
+      <circle class="dot clay clay4" cx="472" cy="78"  r="5.5"/>
+
+      <!-- week labels -->
+      <text class="week-lbl" x="64"  y="292" text-anchor="middle">Sem. 1</text>
+      <text class="week-lbl" x="200" y="292" text-anchor="middle">Sem. 2</text>
+      <text class="week-lbl" x="336" y="292" text-anchor="middle">Sem. 3</text>
+      <text class="week-lbl" x="472" y="292" text-anchor="middle">Sem. 4</text>
+
+      <!-- callout pointing to protocol endpoint -->
+      <g class="callout-g">
+        <rect class="callout-box" x="318" y="34" width="184" height="34" rx="9"/>
+        <text class="callout-txt" x="410" y="56" text-anchor="middle">Botox Coreano Caseiro</text>
+        <path d="M 460,68 L 468,78 L 476,68 Z" class="callout-box"/>
+      </g>
+
+      <!-- legend -->
+      <g class="legend-g">
+        <line x1="74" y1="314" x2="92" y2="314" stroke="oklch(0.64 0.095 32)" stroke-width="3" stroke-linecap="round"/>
+        <text class="legend-txt" x="100" y="318"><tspan font-weight="600" fill="oklch(0.265 0.012 55)">Botox Coreano Caseiro</tspan></text>
+        <line x1="290" y1="314" x2="308" y2="314" stroke="oklch(0.74 0.012 60)" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="1 6"/>
+        <text class="legend-txt" x="316" y="318">Tratamentos tradicionais</text>
+      </g>
+    </svg>
+  </div>
+</body>
+</html>
