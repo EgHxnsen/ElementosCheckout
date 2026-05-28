@@ -1583,20 +1583,16 @@ async function muxVideoWithAudio(videoFile, audioWavBlob) {
   const audioBytes = new Uint8Array(await audioWavBlob.arrayBuffer());
 
   try {
-    try { ffmpeg.FS('unlink', inputName); } catch (_) {}
-    try { ffmpeg.FS('unlink', audioName); } catch (_) {}
-    try { ffmpeg.FS('unlink', outName); } catch (_) {}
-
-    ffmpeg.FS('writeFile', inputName, videoBytes);
-    ffmpeg.FS('writeFile', audioName, audioBytes);
+    await ffmpeg.writeFile(inputName, videoBytes);
+    await ffmpeg.writeFile(audioName, audioBytes);
 
     const args = isWebM
       ? ['-i', inputName, '-i', audioName, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy', '-c:a', 'libopus', '-shortest', outName]
       : ['-i', inputName, '-i', audioName, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', outName];
 
-    await ffmpeg.run(...args);
+    await ffmpeg.exec(args);
 
-    const data = ffmpeg.FS('readFile', outName);
+    const data = await ffmpeg.readFile(outName);
     const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
     if (!bytes || bytes.length < 100) {
       throw new Error('FFmpeg produced an empty or invalid output file. The video may use an unsupported codec.');
@@ -1608,65 +1604,53 @@ async function muxVideoWithAudio(videoFile, audioWavBlob) {
   } catch (err) {
     throw new Error('Video remux failed. ' + (err && err.message ? err.message : err));
   } finally {
-    try { ffmpeg.FS('unlink', inputName); } catch (_) {}
-    try { ffmpeg.FS('unlink', audioName); } catch (_) {}
-    try { ffmpeg.FS('unlink', outName); } catch (_) {}
+    try { await ffmpeg.deleteFile(inputName); } catch (_) {}
+    try { await ffmpeg.deleteFile(audioName); } catch (_) {}
+    try { await ffmpeg.deleteFile(outName); } catch (_) {}
   }
 }
 
-// Dynamically load FFmpeg.js from CDN
+// ─── FFmpeg 0.12.x loader (core-st = single-threaded, no SharedArrayBuffer) ───
 let _ffmpegLoaded = false;
 let _ffmpegInstance = null;
 let _ffmpegLoadingPromise = null;
+
+function _loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Failed to load: ' + src));
+    document.head.appendChild(s);
+  });
+}
 
 function loadFFmpeg() {
   if (_ffmpegLoaded && _ffmpegInstance) return Promise.resolve(_ffmpegInstance);
   if (_ffmpegLoadingPromise) return _ffmpegLoadingPromise;
 
-  _ffmpegLoadingPromise = new Promise((resolve, reject) => {
-    const boot = async () => {
-      try {
-        const factory = (window.FFmpeg && window.FFmpeg.createFFmpeg) || window.createFFmpeg;
-        if (!factory) throw new Error('FFmpeg loader unavailable');
-        if (!_ffmpegInstance) {
-          _ffmpegInstance = factory({
-            log: false,
-            corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
-          });
-        }
-        if (!_ffmpegLoaded) {
-          await _ffmpegInstance.load();
-          _ffmpegLoaded = true;
-        }
-        resolve(_ffmpegInstance);
-      } catch (err) {
-        _ffmpegLoadingPromise = null;
-        reject(err);
-      }
-    };
+  _ffmpegLoadingPromise = (async () => {
+    try {
+      await _loadScript('https://unpkg.com/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js');
+      await _loadScript('https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js');
 
-    if ((window.FFmpeg && window.FFmpeg.createFFmpeg) || window.createFFmpeg) {
-      boot();
-      return;
-    }
+      const { FFmpeg } = window.FFmpegWASM;
+      const { toBlobURL } = window.FFmpegUtil;
 
-    const existing = document.getElementById('ffmpegWasmScript');
-    if (existing) {
-      existing.addEventListener('load', boot, { once: true });
-      existing.addEventListener('error', () => reject(new Error('Failed to load FFmpeg library.')), { once: true });
-      return;
-    }
-
-    const s = document.createElement('script');
-    s.id = 'ffmpegWasmScript';
-    s.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js';
-    s.onload = boot;
-    s.onerror = () => {
+      const base = 'https://unpkg.com/@ffmpeg/core-st@0.12.6/dist/esm';
+      _ffmpegInstance = new FFmpeg();
+      await _ffmpegInstance.load({
+        coreURL: await toBlobURL(`${base}/ffmpeg-core.js`,   'text/javascript'),
+        wasmURL: await toBlobURL(`${base}/ffmpeg-core.wasm`, 'application/wasm'),
+      });
+      _ffmpegLoaded = true;
+      return _ffmpegInstance;
+    } catch (err) {
       _ffmpegLoadingPromise = null;
-      reject(new Error('Failed to load FFmpeg library.'));
-    };
-    document.head.appendChild(s);
-  });
+      throw err;
+    }
+  })();
 
   return _ffmpegLoadingPromise;
 }
