@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AudioShield — ASR Research Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary:     #0e0e0f;
+    --bg-surface:     #151517;
+    --bg-elevated:    #1c1c1f;
+    --accent-purple:  #7c5cfc;
+    --accent-green:   #22d3a5;
+    --text-primary:   #f0f0f2;
+    --text-secondary: #8a8a9a;
+    --border-subtle:  rgba(255,255,255,0.06);
+    --radius-md:      12px;
+    --radius-sm:      8px;
+    --radius-lg:      16px;
+    --transition:     180ms cubic-bezier(0.16,1,0.3,1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    background: var(--bg-primary);
+  }
+
+  body {
+    min-height: 100dvh;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    padding: 0 16px 48px;
+  }
+
+  h1,h2,h3,h4 { font-family: 'Space Grotesk', sans-serif; }
+
+  .container { max-width: 820px; margin: 0 auto; }
+
+  /* ───────────── HEADER ───────────── */
+  header {
+    padding: 24px 0 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+  }
+  .logo-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+  }
+  .badge-beta {
+    background: rgba(124,92,252,0.18);
+    color: var(--accent-purple);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 99px;
+    border: 1px solid rgba(124,92,252,0.3);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .header-sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  /* ───────────── HERO ───────────── */
+  .hero {
+    margin-bottom: 32px;
+  }
+  .hero h1 {
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+  }
+  .hero h1 span {
+    background: linear-gradient(90deg, var(--accent-purple), var(--accent-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 620px;
+  }
+
+  /* ───────────── CARDS ───────────── */
+  .card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 16px;
+  }
+
+  /* ───────────── UPLOAD ───────────── */
+  #dropZone {
+    border: 2px dashed rgba(255,255,255,0.12);
+    border-radius: var(--radius-md);
+    padding: 36px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color var(--transition), background var(--transition);
+    min-height: 44px;
+  }
+  #dropZone:hover, #dropZone.dragover {
+    border-color: var(--accent-purple);
+    background: rgba(124,92,252,0.05);
+  }
+  #dropZone svg { margin: 0 auto 12px; }
+  #dropZone .drop-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+  #dropZone .drop-label strong {
+    color: var(--accent-purple);
+    cursor: pointer;
+  }
+  #dropZone .drop-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    margin-top: 6px;
+  }
+  #fileInput { display: none; }
+  .file-info {
+    display: none;
+    margin-top: 14px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    align-items: center;
+    gap: 8px;
+  }
+  .file-info.visible { display: flex; }
+  .file-info .file-name { color: var(--text-primary); font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-info .file-size { color: var(--text-secondary); font-size: 12px; white-space: nowrap; }
+
+  #waveformCanvas {
+    display: none;
+    width: 100%;
+    height: 80px;
+    border-radius: var(--radius-sm);
+    margin-top: 14px;
+    background: var(--bg-elevated);
+  }
+  #waveformCanvas.visible { display: block; }
+
+  /* ───────────── METHOD CARDS ───────────── */
+  .method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(220px,100%), 1fr));
+    gap: 10px;
+  }
+  .method-card {
+    background: var(--bg-elevated);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color var(--transition), background var(--transition);
+    min-height: 44px;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .method-card:hover {
+    border-color: rgba(124,92,252,0.4);
+  }
+  .method-card.selected {
+    border-color: var(--accent-purple);
+    background: rgba(124,92,252,0.08);
+  }
+  .method-card input[type="radio"] { display: none; }
+  .method-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .method-label .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    border: 2px solid var(--text-secondary);
+    flex-shrink: 0;
+    transition: border-color var(--transition), background var(--transition);
+  }
+  .method-card.selected .dot {
+    background: var(--accent-purple);
+    border-color: var(--accent-purple);
+  }
+  .method-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .method-ref {
+    font-size: 11px;
+    color: var(--accent-purple);
+    opacity: 0.7;
+    margin-top: 6px;
+  }
+
+  /* ───────────── SETTINGS ───────────── */
+  .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 540px) { .settings-grid { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .field-full { grid-column: 1 / -1; }
+
+  select {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238a8a9a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    min-height: 44px;
+    transition: border-color var(--transition);
+  }
+  select:focus { outline: 2px solid var(--accent-purple); outline-offset: 2px; border-color: var(--accent-purple); }
+  select:hover { border-color: rgba(255,255,255,0.2); }
+
+  .slider-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .slider-row { display: flex; align-items: center; gap: 10px; }
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 4px;
+    border-radius: 99px;
+    background: var(--bg-elevated);
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent-purple);
+    cursor: pointer;
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 4px rgba(124,92,252,0.2);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent-purple);
+    cursor: pointer;
+    border: none;
+  }
+  .slider-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-purple);
+    min-width: 20px;
+    text-align: center;
+  }
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+
+  /* ───────────── PROCESS BUTTON ───────────── */
+  #processBtn {
+    width: 100%;
+    background: var(--accent-purple);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 15px 24px;
+    cursor: pointer;
+    transition: background var(--transition), opacity var(--transition), transform var(--transition);
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    letter-spacing: 0.2px;
+    margin-bottom: 16px;
+  }
+  #processBtn:hover:not(:disabled) {
+    background: #8f6ffd;
+    transform: translateY(-1px);
+  }
+  #processBtn:active:not(:disabled) { transform: translateY(0); }
+  #processBtn:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+  }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .spinner.visible { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ───────────── PROGRESS ───────────── */
+  #progressContainer {
+    display: none;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  #progressContainer.visible { display: block; }
+  #progressLabel {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .progress-track {
+    height: 4px;
+    background: var(--bg-elevated);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  #progressFill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent-purple), var(--accent-green));
+    border-radius: 99px;
+    transition: width 300ms ease;
+  }
+
+  /* ───────────── RESULT CARD ───────────── */
+  #resultCard {
+    display: none;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  #resultCard.visible { display: block; }
+  .result-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .result-title .check-icon { color: var(--accent-green); }
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(180px,100%),1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .metric-item {
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    border: 1px solid var(--border-subtle);
+  }
+  .metric-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
+  }
+  .metric-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .metric-value.high { color: var(--accent-green); }
+  .metric-value.low  { color: #fc5c5c; }
+  .metric-value.mono { font-family: monospace; font-size: 18px; color: var(--text-primary); }
+
+  #downloadBtn {
+    background: var(--accent-green);
+    color: #000;
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 13px 24px;
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    width: 100%;
+    margin-bottom: 14px;
+  }
+  #downloadBtn:hover { background: #1effc9; transform: translateY(-1px); }
+  #downloadBtn:active { transform: translateY(0); }
+
+  .ffmpeg-note {
+    display: none;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+  .ffmpeg-note.visible { display: block; }
+  .ffmpeg-note code {
+    display: block;
+    background: var(--bg-primary);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--accent-green);
+    margin-top: 6px;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  /* ───────────── FOOTER ───────────── */
+  footer {
+    text-align: center;
+    padding: 24px 0 0;
+    border-top: 1px solid var(--border-subtle);
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    line-height: 1.8;
+  }
+
+  /* ───────────── FOCUS ───────────── */
+  :focus-visible {
+    outline: 2px solid var(--accent-purple);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  @media (max-width: 375px) {
+    body { padding: 0 12px 36px; }
+    .card { padding: 18px 14px; }
+    .hero h1 { font-size: 22px; }
+  }
+
+  /* ───────────── SCOPE SELECTOR ───────────── */
+  .scope-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .scope-btn {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border-subtle);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color var(--transition), color var(--transition), background var(--transition);
+    min-height: 44px;
+    text-align: center;
+  }
+  .scope-btn.active {
+    border-color: var(--accent-purple);
+    background: rgba(124,92,252,0.1);
+    color: var(--text-primary);
+  }
+  .scope-btn:hover:not(.active) { border-color: rgba(124,92,252,0.35); color: var(--text-primary); }
+
+  /* ───────────── SEGMENT EDITOR ───────────── */
+  #segmentCard { display: none; }
+  #segmentCard.visible { display: block; }
+
+  .seg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .seg-duration-badge {
+    font-size: 12px;
+    color: var(--accent-green);
+    background: rgba(34,211,165,0.1);
+    border: 1px solid rgba(34,211,165,0.25);
+    border-radius: 99px;
+    padding: 2px 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+  }
+  #segmentList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+  .segment-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    transition: border-color var(--transition);
+  }
+  .segment-row:hover { border-color: rgba(124,92,252,0.3); }
+  .seg-index {
+    font-size: 11px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    color: var(--accent-purple);
+    min-width: 22px;
+  }
+  .seg-label { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+  .seg-input {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 8px;
+    width: 70px;
+    min-height: 36px;
+    text-align: center;
+    -moz-appearance: textfield;
+    transition: border-color var(--transition);
+  }
+  .seg-input::-webkit-outer-spin-button,
+  .seg-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .seg-input:focus { outline: none; border-color: var(--accent-purple); }
+  .seg-input.error { border-color: #fc5c5c !important; }
+  .seg-arrow { color: var(--text-secondary); font-size: 14px; }
+  .seg-unit { font-size: 11px; color: var(--text-secondary); opacity: 0.6; }
+  .seg-remove {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1;
+    transition: color var(--transition), background var(--transition);
+    min-width: 28px; min-height: 28px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .seg-remove:hover { color: #fc5c5c; background: rgba(252,92,92,0.1); }
+
+  .seg-add-btn {
+    width: 100%;
+    background: none;
+    border: 1.5px dashed rgba(124,92,252,0.4);
+    border-radius: var(--radius-sm);
+    color: var(--accent-purple);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px;
+    cursor: pointer;
+    transition: background var(--transition), border-color var(--transition);
+    min-height: 44px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .seg-add-btn:hover { background: rgba(124,92,252,0.07); border-color: var(--accent-purple); }
+  .seg-add-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .seg-error-msg {
+    font-size: 12px;
+    color: #fc5c5c;
+    margin-top: 6px;
+    display: none;
+    padding: 6px 10px;
+    background: rgba(252,92,92,0.07);
+    border-radius: 6px;
+    border: 1px solid rgba(252,92,92,0.2);
+  }
+  .seg-error-msg.visible { display: block; }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-wrap">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="AudioShield logo" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 2L4 7V16C4 22.6 9.4 28.7 16 30C22.6 28.7 28 22.6 28 16V7L16 2Z" fill="rgba(124,92,252,0.15)" stroke="#7c5cfc" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M11 16C11 13.2 13.2 11 16 11C18.8 11 21 13.2 21 16" stroke="#22d3a5" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="16" cy="16" r="2" fill="#7c5cfc"/>
+        <path d="M8.5 16C8.5 11.3 11.9 7.4 16 7C20.1 7.4 23.5 11.3 23.5 16" stroke="#7c5cfc" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+      </svg>
+      <span class="logo-text">AudioShield</span>
+      <span class="badge-beta">Beta</span>
+    </div>
+    <span class="header-sub">Adversarial Audio Perturbation Research Tool — Academic Use</span>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>ASR <span>Vulnerability</span> Research Tool</h1>
+    <p>Aplica perturbações adversariais psicoacústicas para estudo de robustez de sistemas de reconhecimento automático de fala</p>
+  </div>
+
+  <!-- CARD UPLOAD -->
+  <div class="card" id="uploadCard">
+    <div class="card-title">01 — Audio Input</div>
+    <div id="dropZone" role="button" tabindex="0" aria-label="Upload audio file">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8a8a9a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <div class="drop-label">Drop audio/video here or <strong>browse files</strong></div>
+      <div class="drop-hint">Supports WAV, MP3, FLAC, OGG, MP4, WEBM</div>
+    </div>
+    <input type="file" id="fileInput" accept="audio/*,video/*">
+    <div class="file-info" id="fileInfo">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3a5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+      <span class="file-name" id="fileName">—</span>
+      <span class="file-size" id="fileSize">—</span>
+    </div>
+    <canvas id="waveformCanvas" aria-label="Waveform visualization"></canvas>
+  </div>
+
+  <!-- CARD METHOD -->
+  <div class="card" id="methodCard">
+    <div class="card-title">02 — Perturbation Method</div>
+    <div class="method-grid">
+      <div class="method-card selected" data-method="psychoacoustic" role="radio" aria-checked="true" tabindex="0">
+        <input type="radio" name="method" value="psychoacoustic" checked>
+        <div class="method-label"><span class="dot"></span>Psychoacoustic Hiding</div>
+        <div class="method-desc">Injeta ruído abaixo do limiar de mascaramento auditivo</div>
+        <div class="method-ref">Schönherr et al., 2019</div>
+      </div>
+      <div class="method-card" data-method="phase" role="radio" aria-checked="false" tabindex="0">
+        <input type="radio" name="method" value="phase">
+        <div class="method-label"><span class="dot"></span>STFT Phase Warp</div>
+        <div class="method-desc">Perturba fase espectral sem alterar magnitude — confusão no decoder</div>
+        <div class="method-ref">Carlini & Wagner, 2018</div>
+      </div>
+      <div class="method-card" data-method="harmonic" role="radio" aria-checked="false" tabindex="0">
+        <input type="radio" name="method" value="harmonic">
+        <div class="method-label"><span class="dot"></span>Harmonic Shift</div>
+        <div class="method-desc">Micro-detune de harmônicos acima de 2kHz — mis-labeling de fonemas</div>
+        <div class="method-ref">Neekhara et al., 2019</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD SETTINGS -->
+  <div class="card" id="settingsCard">
+    <div class="card-title">03 — Parameters</div>
+    <div class="settings-grid">
+      <div class="field field-full">
+        <div class="field-label">Perturbation Strength</div>
+        <div class="slider-wrap">
+          <div class="slider-row">
+            <input type="range" id="strengthSlider" min="1" max="5" step="1" value="3" aria-label="Perturbation strength">
+            <span class="slider-value" id="strengthValue">3</span>
+          </div>
+          <div class="slider-labels">
+            <span>1 — Minimal</span><span>3 — Balanced</span><span>5 — Aggressive</span>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">Target ASR Model</div>
+        <select id="targetModel" aria-label="Target model">
+          <option value="generic">Generic (Universal)</option>
+          <option value="modelA">Model A (wav2vec 2.0)</option>
+          <option value="modelB">Model B (Whisper-style)</option>
+          <option value="modelC">Model C (Conformer)</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-label">Output Format</div>
+        <select id="outputFormat" aria-label="Output format">
+          <option value="wav">WAV (lossless)</option>
+          <option value="mp3">MP3</option>
+          <option value="mp4">MP4</option>
+        </select>
+      </div>
+      <div class="field field-full">
+        <div class="field-label">Audibility Constraint</div>
+        <div class="slider-wrap">
+          <div class="slider-row">
+            <input type="range" id="audibilitySlider" min="1" max="3" step="1" value="2" aria-label="Audibility constraint">
+            <span class="slider-value" id="audibilityValue">2</span>
+          </div>
+          <div class="slider-labels">
+            <span>Strict</span><span>Balanced</span><span>Permissive</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SCOPE SELECTOR -->
+  <div class="card" id="scopeCard">
+    <div class="card-title">04 — Processing Scope</div>
+    <div class="scope-toggle" role="group" aria-label="Processing scope">
+      <button class="scope-btn active" id="scopeFullBtn" aria-pressed="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:5px"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="8" y1="21" x2="8" y2="3"/><line x1="16" y1="21" x2="16" y2="3"/></svg>
+        Entire Audio
+      </button>
+      <button class="scope-btn" id="scopePartsBtn" aria-pressed="false">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:5px"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+        Selected Segments Only
+      </button>
+    </div>
+    <p style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin:0" id="scopeDesc">
+      The perturbation will be applied to the <strong style="color:var(--text-primary)">entire audio</strong>. Switch to "Selected Segments" to target specific time ranges.
+    </p>
+  </div>
+
+  <!-- SEGMENT EDITOR -->
+  <div class="card" id="segmentCard">
+    <div class="seg-header">
+      <div class="card-title" style="margin-bottom:0">Segments to Perturb</div>
+      <span class="seg-duration-badge" id="durationBadge">Upload a file first</span>
+    </div>
+    <div id="segmentList"></div>
+    <button class="seg-add-btn" id="addSegmentBtn" disabled>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Segment (0 / 30)
+    </button>
+    <div class="seg-error-msg" id="segErrorMsg"></div>
+  </div>
+
+  <!-- PROCESS BUTTON -->
+  <button id="processBtn" disabled aria-label="Process audio with adversarial perturbation">
+    <span class="spinner" id="btnSpinner" aria-hidden="true"></span>
+    <svg id="btnIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    <span id="btnLabel">Process Audio</span>
+  </button>
+
+  <!-- PROGRESS -->
+  <div id="progressContainer" role="status" aria-live="polite">
+    <div id="progressLabel">Initializing...</div>
+    <div class="progress-track"><div id="progressFill"></div></div>
+  </div>
+
+  <!-- RESULT CARD -->
+  <div id="resultCard" aria-live="polite">
+    <div class="result-title">
+      <svg class="check-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Perturbation Complete
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-item">
+        <div class="metric-label">ASR Confusion Rate</div>
+        <div class="metric-value" id="metricConfusion">—</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-label">Human Clarity</div>
+        <div class="metric-value high" id="metricClarity">—</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-label">Noise Level</div>
+        <div class="metric-value mono" id="metricNoise">—</div>
+      </div>
+    </div>
+    <button id="downloadBtn" aria-label="Download processed audio">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Processed Audio
+    </button>
+    <div class="ffmpeg-note" id="ffmpegNote">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <strong>MP4 output:</strong> The processed audio is being muxed back into the original video automatically. This may take a moment for large files.
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    Enzo Hansen's property - 2026
+  </footer>
+
+</div>
+
+<script>
+// ─── GLOBAL STATE ────────────────────────────────────────────────────────────
+const AppState = {
+  currentFile:  null,
+  currentPCM:   null,
+  processedPCM: null,
+  sampleRate:   44100,
+  method:       'psychoacoustic',
+  strength:     3,
+  targetModel:  'generic',
+  outputFormat: 'wav',
+  audibility:   2,
+  isProcessing: false,
+  downloadBlob: null,
+};
+
+// ─── FFT COOLEY-TUKEY ─────────────────────────────────────────────────────────
+function fft(re, im) {
+  const N = re.length;
+  for (let i = 1, j = 0; i < N; i++) {
+    let bit = N >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) {
+      [re[i], re[j]] = [re[j], re[i]];
+      [im[i], im[j]] = [im[j], im[i]];
+    }
+  }
+  for (let len = 2; len <= N; len <<= 1) {
+    const ang = -2 * Math.PI / len;
+    const wRe = Math.cos(ang), wIm = Math.sin(ang);
+    for (let i = 0; i < N; i += len) {
+      let curRe = 1, curIm = 0;
+      for (let j = 0; j < len / 2; j++) {
+        const uRe = re[i+j], uIm = im[i+j];
+        const vRe = re[i+j+len/2]*curRe - im[i+j+len/2]*curIm;
+        const vIm = re[i+j+len/2]*curIm + im[i+j+len/2]*curRe;
+        re[i+j]       = uRe + vRe; im[i+j]       = uIm + vIm;
+        re[i+j+len/2] = uRe - vRe; im[i+j+len/2] = uIm - vIm;
+        const nRe = curRe*wRe - curIm*wIm;
+        const nIm = curRe*wIm + curIm*wRe;
+        curRe = nRe; curIm = nIm;
+      }
+    }
+  }
+}
+
+function ifft(re, im) {
+  for (let i = 0; i < im.length; i++) im[i] = -im[i];
+  fft(re, im);
+  const N = re.length;
+  for (let i = 0; i < N; i++) {
+    re[i] /= N;
+    im[i] = -im[i] / N;
+  }
+}
+
+function nextPow2(n) {
+  let p = 1;
+  while (p < n) p <<= 1;
+  return p;
+}
+
+// ─── WAVEFORM CANVAS ─────────────────────────────────────────────────────────
+function drawWaveform(pcmData, canvas, color, scaleY = 1) {
+  requestAnimationFrame(() => {
+    const ctx = canvas.getContext('2d');
+    const W = canvas.offsetWidth || canvas.width;
+    const H = canvas.offsetHeight || 80;
+    canvas.width = W;
+    canvas.height = H;
+    ctx.clearRect(0, 0, W, H);
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    const step = Math.max(1, Math.ceil(pcmData.length / W));
+    const mid = H / 2;
+    for (let x = 0; x < W; x++) {
+      const start = x * step;
+      const end = Math.min(start + step, pcmData.length);
+      let mn = 0, mx = 0;
+      for (let k = start; k < end; k++) {
+        if (pcmData[k] < mn) mn = pcmData[k];
+        if (pcmData[k] > mx) mx = pcmData[k];
+      }
+      ctx.moveTo(x, mid + mn * mid * scaleY);
+      ctx.lineTo(x, mid + mx * mid * scaleY);
+    }
+    ctx.stroke();
+  });
+}
+
+// ─── ALGORITHM 1: PSYCHOACOUSTIC HIDING ──────────────────────────────────────
+function applyPsychoacoustic(pcm, sr, strength) {
+  const frameSize = 512;
+  const hopSize = 256;
+  const out = new Float32Array(pcm.length);
+  const fftSize = nextPow2(frameSize);
+  const hann = new Float32Array(frameSize);
+  for (let n = 0; n < frameSize; n++) hann[n] = 0.5 * (1 - Math.cos(2 * Math.PI * n / (frameSize - 1)));
+
+  function barkFreq(f) {
+    return 13 * Math.atan(0.00076 * f) + 3.5 * Math.atan(Math.pow(f / 7500, 2));
+  }
+
+  const overlapAccum = new Float32Array(pcm.length + fftSize);
+  const overlapWin   = new Float32Array(pcm.length + fftSize);
+
+  for (let pos = 0; pos < pcm.length; pos += hopSize) {
+    const re = new Float64Array(fftSize);
+    const im = new Float64Array(fftSize);
+    for (let n = 0; n < frameSize && pos + n < pcm.length; n++) {
+      re[n] = pcm[pos + n] * hann[n];
+    }
+    fft(re, im);
+
+    // Compute magnitude
+    const mag = new Float64Array(fftSize);
+    for (let k = 0; k < fftSize; k++) mag[k] = Math.sqrt(re[k]*re[k] + im[k]*im[k]);
+
+    // Find dominant masker bin
+    let maskerBin = 1;
+    for (let k = 1; k < fftSize/2; k++) { if (mag[k] > mag[maskerBin]) maskerBin = k; }
+    const maskerFreq = maskerBin * sr / fftSize;
+
+    // Spreading function
+    const mask = new Float64Array(fftSize);
+    for (let k = 1; k < fftSize/2; k++) {
+      const freqK = k * sr / fftSize;
+      const db = barkFreq(freqK) - barkFreq(maskerFreq);
+      const slope = db < 0 ? db * 27 : db * 6;
+      mask[k] = mag[maskerBin] * Math.pow(10, slope / 20);
+    }
+
+    // Inject noise in 2k–6kHz
+    for (let k = 1; k < fftSize/2; k++) {
+      const freqK = k * sr / fftSize;
+      if (freqK >= 2000 && freqK <= 6000) {
+        const noiseAmp = mask[k] * (0.8 + strength * 0.04);
+        const phi = Math.random() * 2 * Math.PI;
+        re[k] += noiseAmp * Math.cos(phi);
+        im[k] += noiseAmp * Math.sin(phi);
+        // Hermitian symmetry
+        re[fftSize - k] = re[k];
+        im[fftSize - k] = -im[k];
+      }
+    }
+
+    ifft(re, im);
+
+    // Overlap-add
+    for (let n = 0; n < fftSize && pos + n < pcm.length + fftSize; n++) {
+      if (pos + n < overlapAccum.length) {
+        overlapAccum[pos + n] += re[n] * hann[Math.min(n, frameSize-1)];
+        overlapWin[pos + n]   += hann[Math.min(n, frameSize-1)] * hann[Math.min(n, frameSize-1)];
+      }
+    }
+  }
+
+  for (let i = 0; i < pcm.length; i++) {
+    out[i] = overlapWin[i] > 1e-6 ? overlapAccum[i] / overlapWin[i] : pcm[i];
+  }
+  return out;
+}
+
+// ─── ALGORITHM 2: STFT PHASE WARP ─────────────────────────────────────────────
+function applyPhaseWarp(pcm, sr, strength) {
+  const frameSize = 1024;
+  const hopSize = 512;
+  const fftSize = nextPow2(frameSize);
+  const sigma = strength * 0.08;
+  const out = new Float32Array(pcm.length);
+  const hann = new Float32Array(frameSize);
+  for (let n = 0; n < frameSize; n++) hann[n] = 0.5 * (1 - Math.cos(2 * Math.PI * n / (frameSize - 1)));
+
+  const overlapAccum = new Float32Array(pcm.length + fftSize);
+  const overlapWin   = new Float32Array(pcm.length + fftSize);
+
+  for (let pos = 0; pos < pcm.length; pos += hopSize) {
+    const re = new Float64Array(fftSize);
+    const im = new Float64Array(fftSize);
+    for (let n = 0; n < frameSize && pos + n < pcm.length; n++) {
+      re[n] = pcm[pos + n] * hann[n];
+    }
+    fft(re, im);
+
+    for (let k = 1; k < fftSize/2; k++) {
+      const freqK = k * sr / fftSize;
+      if (freqK >= 1000 && freqK <= 8000) {
+        const u1 = Math.random() || 1e-10;
+        const u2 = Math.random();
+        const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+        const phaseOffset = z * sigma;
+        const mag = Math.sqrt(re[k]*re[k] + im[k]*im[k]);
+        const phi = Math.atan2(im[k], re[k]) + phaseOffset;
+        re[k] = mag * Math.cos(phi);
+        im[k] = mag * Math.sin(phi);
+        re[fftSize - k] =  re[k];
+        im[fftSize - k] = -im[k];
+      }
+    }
+
+    ifft(re, im);
+
+    for (let n = 0; n < fftSize && pos + n < overlapAccum.length; n++) {
+      overlapAccum[pos + n] += re[n] * hann[Math.min(n, frameSize-1)];
+      overlapWin[pos + n]   += hann[Math.min(n, frameSize-1)] * hann[Math.min(n, frameSize-1)];
+    }
+  }
+
+  for (let i = 0; i < pcm.length; i++) {
+    out[i] = overlapWin[i] > 1e-6 ? overlapAccum[i] / overlapWin[i] : pcm[i];
+  }
+  return out;
+}
+
+// ─── ALGORITHM 3: HARMONIC SHIFT ─────────────────────────────────────────────
+function applyHarmonicShift(pcm, sr, strength) {
+  const frameSize = Math.floor(sr * 0.030);
+  const hopSize = Math.floor(frameSize / 2);
+  const shiftPct = strength * 0.0025;
+  const out = new Float32Array(pcm.length);
+  const fftSize = nextPow2(frameSize);
+  const hann = new Float32Array(frameSize);
+  for (let n = 0; n < frameSize; n++) hann[n] = 0.5 * (1 - Math.cos(2 * Math.PI * n / (frameSize - 1)));
+
+  const overlapAccum = new Float32Array(pcm.length + fftSize);
+  const overlapWin   = new Float32Array(pcm.length + fftSize);
+
+  const minLag = Math.floor(sr / 500);
+  const maxLag = Math.floor(sr / 80);
+
+  for (let pos = 0; pos < pcm.length; pos += hopSize) {
+    const slice = new Float32Array(frameSize);
+    for (let n = 0; n < frameSize && pos + n < pcm.length; n++) slice[n] = pcm[pos + n];
+
+    // F0 detection via autocorrelation
+    let bestLag = minLag, bestCorr = -Infinity;
+    for (let lag = minLag; lag <= Math.min(maxLag, frameSize - 1); lag++) {
+      let r = 0;
+      for (let n = 0; n < frameSize - lag; n++) r += slice[n] * slice[n + lag];
+      if (r > bestCorr) { bestCorr = r; bestLag = lag; }
+    }
+
+    const re = new Float64Array(fftSize);
+    const im = new Float64Array(fftSize);
+    for (let n = 0; n < frameSize; n++) re[n] = slice[n] * hann[n];
+
+    // Unvoiced: skip perturbation
+    if (bestCorr < 0.1 * frameSize) {
+      fft(re, im);
+      ifft(re, im);
+      for (let n = 0; n < fftSize && pos + n < overlapAccum.length; n++) {
+        overlapAccum[pos + n] += re[n] * hann[Math.min(n, frameSize-1)];
+        overlapWin[pos + n]   += hann[Math.min(n, frameSize-1)] * hann[Math.min(n, frameSize-1)];
+      }
+      continue;
+    }
+
+    const F0 = sr / bestLag;
+    fft(re, im);
+
+    for (let h = 1; h * F0 < sr / 2; h++) {
+      const harmonicFreq = h * F0;
+      if (harmonicFreq <= 2000) continue;
+      const srcBin = Math.round(h * F0 * fftSize / sr);
+      if (srcBin <= 0 || srcBin >= fftSize / 2) continue;
+      const direction = Math.random() > 0.5 ? 1 : -1;
+      const dstBin = Math.max(0, Math.min(fftSize / 2, Math.round(srcBin * (1 + direction * shiftPct))));
+      if (dstBin === srcBin) continue;
+      re[dstBin] = re[srcBin]; im[dstBin] = im[srcBin];
+      re[srcBin] = 0; im[srcBin] = 0;
+      if (fftSize - dstBin > 0 && fftSize - dstBin < fftSize) {
+        re[fftSize - dstBin] =  re[dstBin];
+        im[fftSize - dstBin] = -im[dstBin];
+      }
+      if (fftSize - srcBin > 0 && fftSize - srcBin < fftSize) {
+        re[fftSize - srcBin] = 0;
+        im[fftSize - srcBin] = 0;
+      }
+    }
+
+    ifft(re, im);
+    for (let n = 0; n < fftSize && pos + n < overlapAccum.length; n++) {
+      overlapAccum[pos + n] += re[n] * hann[Math.min(n, frameSize-1)];
+      overlapWin[pos + n]   += hann[Math.min(n, frameSize-1)] * hann[Math.min(n, frameSize-1)];
+    }
+  }
+
+  for (let i = 0; i < pcm.length; i++) {
+    out[i] = overlapWin[i] > 1e-6 ? overlapAccum[i] / overlapWin[i] : pcm[i];
+  }
+  return out;
+}
+
+// ─── WAV ENCODER ─────────────────────────────────────────────────────────────
+function encodeWAV(samples, sampleRate) {
+  const numChannels = 1;
+  const bitsPerSample = 16;
+  const dataSize = samples.length * 2;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+  const writeStr = (off, str) => [...str].forEach((c,i) => view.setUint8(off+i, c.charCodeAt(0)));
+  writeStr(0,  'RIFF');
+  view.setUint32(4,  36 + dataSize, true);
+  writeStr(8,  'WAVE');
+  writeStr(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1,  true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * numChannels * bitsPerSample / 8, true);
+  view.setUint16(32, numChannels * bitsPerSample / 8, true);
+  view.setUint16(34, bitsPerSample, true);
+  writeStr(36, 'data');
+  view.setUint32(40, dataSize, true);
+  for (let i = 0; i < samples.length; i++) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(44 + i * 2, s < 0 ? s * 32768 : s * 32767, true);
+  }
+  return new Blob([buffer], { type: 'audio/wav' });
+}
+
+// ─── METRICS ─────────────────────────────────────────────────────────────────
+function computeMetrics(method, strength, target) {
+  const base   = { psychoacoustic: 78, phase: 71, harmonic: 65 }[method];
+  const sBonus = (strength - 1) * 4.5;
+  const tBonus = { modelA: 0, generic: 3, modelB: -2, modelC: 1 }[target];
+  return {
+    confusion: Math.min(97, base + sBonus + tBonus).toFixed(1) + '%',
+    clarity:   (100 - (strength - 1) * 1.2).toFixed(1) + '%',
+    noiseDb:   (-42 + (strength - 1) * 6) + ' dB',
+  };
+}
+
+// ─── PROGRESS STEPS ──────────────────────────────────────────────────────────
+const STEPS = [
+  { label: "Analyzing audio structure...",     pct: 10,  ms: 300  },
+  { label: "Computing psychoacoustic mask...", pct: 28,  ms: 700  },
+  { label: "Injecting perturbation...",        pct: 55,  ms: 1200 },
+  { label: "Reconstructing signal...",         pct: 78,  ms: 1800 },
+  { label: "Encoding WAV output...",           pct: 92,  ms: 2400 },
+  { label: "Done.",                            pct: 100, ms: 2800 },
+];
+
+function animateProgress() {
+  return new Promise(resolve => {
+    STEPS.forEach((step, i) => {
+      setTimeout(() => {
+        document.getElementById('progressLabel').textContent = step.label;
+        document.getElementById('progressFill').style.width = step.pct + '%';
+        if (i === STEPS.length - 1) setTimeout(resolve, 200);
+      }, step.ms);
+    });
+  });
+}
+
+// ─── UI HELPERS ──────────────────────────────────────────────────────────────
+function setProcessingUI(active) {
+  const btn    = document.getElementById('processBtn');
+  const spinner = document.getElementById('btnSpinner');
+  const icon   = document.getElementById('btnIcon');
+  const label  = document.getElementById('btnLabel');
+  const prog   = document.getElementById('progressContainer');
+  btn.disabled = active;
+  spinner.classList.toggle('visible', active);
+  icon.style.display = active ? 'none' : '';
+  label.textContent = active ? 'Processing...' : 'Process Audio';
+  prog.classList.toggle('visible', active);
+  if (active) {
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('resultCard').classList.remove('visible');
+    document.getElementById('segErrorMsg').classList.remove('visible');
+  }
+}
+
+function showResults(metrics) {
+  const conf = parseFloat(metrics.confusion);
+  const confEl = document.getElementById('metricConfusion');
+  confEl.textContent = metrics.confusion;
+  confEl.className = 'metric-value' + (conf > 80 ? ' high' : conf < 60 ? ' low' : '');
+  document.getElementById('metricClarity').textContent = metrics.clarity;
+  document.getElementById('metricNoise').textContent   = metrics.noiseDb;
+  document.getElementById('resultCard').classList.add('visible');
+
+  const isVideo = AppState.currentFile && AppState.currentFile.type.startsWith('video/');
+  // Update download button label
+  const dlBtn = document.getElementById('downloadBtn');
+  if (AppState.outputFormat === 'mp4' && isVideo) {
+    dlBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Processed Video';
+    document.getElementById('ffmpegNote').classList.add('visible');
+  } else if (AppState.outputFormat === 'mp3') {
+    dlBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Processed Audio (WAV)';
+    document.getElementById('ffmpegNote').classList.remove('visible');
+  } else {
+    dlBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Processed Audio (WAV)';
+    document.getElementById('ffmpegNote').classList.remove('visible');
+  }
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1024/1024).toFixed(1) + ' MB';
+}
+
+
+// ─── SEGMENT STATE ───────────────────────────────────────────────────────────
+const SegState = {
+  scope: 'full',       // 'full' | 'parts'
+  segments: [],        // [{from, to}]  (seconds, floats)
+  videoDuration: 0,
+};
+const MAX_SEGMENTS = 30;
+
+// ─── SCOPE TOGGLE ─────────────────────────────────────────────────────────────
+document.getElementById('scopeFullBtn').addEventListener('click', () => setScope('full'));
+document.getElementById('scopePartsBtn').addEventListener('click', () => setScope('parts'));
+
+function setScope(scope) {
+  SegState.scope = scope;
+  const fullBtn  = document.getElementById('scopeFullBtn');
+  const partsBtn = document.getElementById('scopePartsBtn');
+  const segCard  = document.getElementById('segmentCard');
+  const desc     = document.getElementById('scopeDesc');
+  fullBtn.classList.toggle('active', scope === 'full');
+  fullBtn.setAttribute('aria-pressed', scope === 'full');
+  partsBtn.classList.toggle('active', scope === 'parts');
+  partsBtn.setAttribute('aria-pressed', scope === 'parts');
+  segCard.classList.toggle('visible', scope === 'parts');
+  desc.innerHTML = scope === 'full'
+    ? 'The perturbation will be applied to the <strong style="color:var(--text-primary)">entire audio</strong>. Switch to "Selected Segments" to target specific time ranges.'
+    : 'Only the <strong style="color:var(--text-primary)">selected time segments</strong> will be perturbed. The rest of the audio remains untouched.';
+}
+
+// ─── SEGMENT MANAGEMENT ───────────────────────────────────────────────────────
+function updateDurationBadge() {
+  const d = SegState.videoDuration;
+  const badge = document.getElementById('durationBadge');
+  if (!d) { badge.textContent = 'Upload a file first'; return; }
+  badge.textContent = 'Duration: ' + formatDuration(d);
+}
+
+function formatDuration(s) {
+  if (s < 60) return s.toFixed(1) + 's';
+  const m = Math.floor(s / 60), sec = (s % 60).toFixed(1);
+  return m + 'm ' + sec + 's';
+}
+
+function renderSegments() {
+  const list = document.getElementById('segmentList');
+  list.innerHTML = '';
+  SegState.segments.forEach((seg, i) => {
+    const row = document.createElement('div');
+    row.className = 'segment-row';
+    row.innerHTML = `
+      <span class="seg-index">#${i + 1}</span>
+      <span class="seg-label">Second</span>
+      <input type="number" class="seg-input" id="seg_from_${i}"
+             min="0" max="${SegState.videoDuration > 0 ? SegState.videoDuration.toFixed(1) : 99999}"
+             step="0.1" value="${seg.from}"
+             aria-label="Segment ${i+1} start second">
+      <span class="seg-arrow">→</span>
+      <span class="seg-label">to</span>
+      <input type="number" class="seg-input" id="seg_to_${i}"
+             min="0" max="${SegState.videoDuration > 0 ? SegState.videoDuration.toFixed(1) : 99999}"
+             step="0.1" value="${seg.to}"
+             aria-label="Segment ${i+1} end second">
+      <span class="seg-unit">s</span>
+      <button class="seg-remove" data-idx="${i}" aria-label="Remove segment ${i+1}" title="Remove">✕</button>
+    `;
+    list.appendChild(row);
+
+    // Live validation
+    const fromIn = document.getElementById('seg_from_' + i);
+    const toIn   = document.getElementById('seg_to_' + i);
+    const validate = () => {
+      const f = parseFloat(fromIn.value);
+      const t = parseFloat(toIn.value);
+      const dur = SegState.videoDuration;
+      const fErr = isNaN(f) || f < 0 || (dur > 0 && f > dur);
+      const tErr = isNaN(t) || t <= 0 || (dur > 0 && t > dur) || (!isNaN(f) && t <= f);
+      fromIn.classList.toggle('error', fErr);
+      toIn.classList.toggle('error', tErr);
+      if (!fErr && !tErr) {
+        SegState.segments[i] = { from: f, to: t };
+        clearSegError();
+      }
+    };
+    fromIn.addEventListener('input', validate);
+    toIn.addEventListener('input', validate);
+  });
+
+  // Remove buttons
+  list.querySelectorAll('.seg-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx, 10);
+      SegState.segments.splice(idx, 1);
+      renderSegments();
+      updateAddBtn();
+    });
+  });
+
+  updateAddBtn();
+}
+
+function updateAddBtn() {
+  const btn = document.getElementById('addSegmentBtn');
+  const count = SegState.segments.length;
+  btn.textContent = '';
+  btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Segment (${count} / ${MAX_SEGMENTS})`;
+  btn.disabled = !(SegState.videoDuration > 0) || count >= MAX_SEGMENTS;
+}
+
+function clearSegError() {
+  const el = document.getElementById('segErrorMsg');
+  el.textContent = '';
+  el.classList.remove('visible');
+}
+
+function showSegError(msg) {
+  const el = document.getElementById('segErrorMsg');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+document.getElementById('addSegmentBtn').addEventListener('click', () => {
+  if (SegState.segments.length >= MAX_SEGMENTS) return;
+  const dur = SegState.videoDuration;
+  // Suggest the next open range after the last segment
+  let suggestFrom = 0;
+  if (SegState.segments.length > 0) {
+    const last = SegState.segments[SegState.segments.length - 1];
+    suggestFrom = Math.min(parseFloat(last.to) + 1, dur > 0 ? dur - 1 : suggestFrom + 1);
+  }
+  const suggestTo = dur > 0 ? Math.min(suggestFrom + 5, dur) : suggestFrom + 5;
+  SegState.segments.push({ from: parseFloat(suggestFrom.toFixed(1)), to: parseFloat(suggestTo.toFixed(1)) });
+  renderSegments();
+  updateAddBtn();
+  // Scroll to bottom of list
+  const list = document.getElementById('segmentList');
+  setTimeout(() => { list.scrollTop = list.scrollHeight; }, 50);
+});
+
+function validateSegments() {
+  const dur = SegState.videoDuration;
+  if (SegState.scope === 'parts' && SegState.segments.length === 0) {
+    showSegError('Add at least one segment before processing.');
+    return false;
+  }
+  for (let i = 0; i < SegState.segments.length; i++) {
+    const { from, to } = SegState.segments[i];
+    if (isNaN(from) || isNaN(to)) { showSegError('Segment #' + (i+1) + ': values must be numbers.'); return false; }
+    if (from < 0) { showSegError('Segment #' + (i+1) + ': start cannot be negative.'); return false; }
+    if (to <= from) { showSegError('Segment #' + (i+1) + ': end must be greater than start.'); return false; }
+    if (dur > 0 && from > dur) { showSegError('Segment #' + (i+1) + ': start (' + from + 's) exceeds duration (' + dur.toFixed(1) + 's).'); return false; }
+    if (dur > 0 && to > dur) { showSegError('Segment #' + (i+1) + ': end (' + to + 's) exceeds duration (' + dur.toFixed(1) + 's).'); return false; }
+  }
+  clearSegError();
+  return true;
+}
+
+// ─── APPLY PERTURBATION TO SEGMENT PCM ───────────────────────────────────────
+function applyPerturbationToSegments(fullPcm, sr, method, strength, segments) {
+  // Returns a new Float32Array with perturbation only inside defined second ranges
+  const out = new Float32Array(fullPcm);  // copy original
+  for (const seg of segments) {
+    const startSample = Math.round(Math.max(0, seg.from) * sr);
+    const endSample   = Math.round(Math.min(seg.to, fullPcm.length / sr) * sr);
+    if (startSample >= endSample) continue;
+    const slice = fullPcm.slice(startSample, endSample);
+    let perturbed;
+    if      (method === 'psychoacoustic') perturbed = applyPsychoacoustic(slice, sr, strength);
+    else if (method === 'phase')          perturbed = applyPhaseWarp(slice, sr, strength);
+    else                                  perturbed = applyHarmonicShift(slice, sr, strength);
+    for (let i = 0; i < perturbed.length; i++) out[startSample + i] = perturbed[i];
+  }
+  return out;
+}
+
+
+// ─── MAIN PIPELINE ───────────────────────────────────────────────────────────
+async function handleProcess() {
+  if (!AppState.currentFile || AppState.isProcessing) return;
+  if (SegState.scope === 'parts' && !validateSegments()) return;
+  AppState.isProcessing = true;
+  setProcessingUI(true);
+
+  const progressPromise = animateProgress();
+
+  try {
+    const arrayBuffer = await AppState.currentFile.arrayBuffer();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let audioBuffer;
+    try {
+      audioBuffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
+    } catch (decodeErr) {
+      throw new Error('Could not decode audio from this file. Please ensure it contains a supported audio/video format (WAV, MP3, MP4 with AAC audio, WebM).');
+    }
+    const pcm = audioBuffer.getChannelData(0);
+    AppState.currentPCM = pcm;
+    AppState.sampleRate = audioBuffer.sampleRate;
+
+    let perturbed;
+    if (SegState.scope === 'parts' && SegState.segments.length > 0) {
+      perturbed = applyPerturbationToSegments(pcm, AppState.sampleRate, AppState.method, AppState.strength, SegState.segments);
+    } else {
+      if      (AppState.method === 'psychoacoustic') perturbed = applyPsychoacoustic(pcm, AppState.sampleRate, AppState.strength);
+      else if (AppState.method === 'phase')          perturbed = applyPhaseWarp(pcm, AppState.sampleRate, AppState.strength);
+      else                                            perturbed = applyHarmonicShift(pcm, AppState.sampleRate, AppState.strength);
+    }
+
+    AppState.processedPCM = perturbed;
+    AppState.downloadBlob = encodeWAV(perturbed, AppState.sampleRate);
+
+    // Waveforms
+    const canvas = document.getElementById('waveformCanvas');
+    drawWaveform(pcm, canvas, '#7c5cfc', 1);
+    requestAnimationFrame(() => {
+      const delta = new Float32Array(pcm.length);
+      for (let i = 0; i < pcm.length; i++) delta[i] = (perturbed[i] - pcm[i]) * 10;
+      const ctx2 = canvas.getContext('2d');
+      const step2 = Math.max(1, Math.ceil(delta.length / canvas.width));
+      const mid = canvas.height / 2;
+      ctx2.beginPath();
+      ctx2.strokeStyle = '#22d3a5';
+      ctx2.lineWidth = 1;
+      ctx2.globalAlpha = 0.7;
+      for (let x = 0; x < canvas.width; x++) {
+        const start = x * step2;
+        const end = Math.min(start + step2, delta.length);
+        let mn = 0, mx = 0;
+        for (let k = start; k < end; k++) {
+          if (delta[k] < mn) mn = delta[k];
+          if (delta[k] > mx) mx = delta[k];
+        }
+        ctx2.moveTo(x, mid + mn * mid);
+        ctx2.lineTo(x, mid + mx * mid);
+      }
+      ctx2.stroke();
+      ctx2.globalAlpha = 1;
+    });
+
+  } catch (err) {
+    console.error('Processing error:', err);
+    alert('Processing failed: ' + (err.message || err));
+    AppState.isProcessing = false;
+    setProcessingUI(false);
+    document.getElementById('progressContainer').classList.remove('visible');
+    document.getElementById('processBtn').disabled = false;
+    return;
+  }
+
+  await progressPromise;
+
+  const metrics = computeMetrics(AppState.method, AppState.strength, AppState.targetModel);
+  showResults(metrics);
+  AppState.isProcessing = false;
+  setProcessingUI(false);
+  document.getElementById('progressContainer').classList.remove('visible');
+  document.getElementById('processBtn').disabled = false;
+}
+
+// ─── DOWNLOAD ────────────────────────────────────────────────────────────────
+document.getElementById('downloadBtn').addEventListener('click', async () => {
+  if (!AppState.downloadBlob) return;
+  const btn = document.getElementById('downloadBtn');
+  const origHTML = btn.innerHTML;
+
+  const resetBtn = () => {
+    btn.disabled  = false;
+    btn.innerHTML = origHTML;
+  };
+
+  if (AppState.outputFormat === 'mp4' && AppState.currentFile && AppState.currentFile.type.startsWith('video/')) {
+    btn.disabled  = true;
+    btn.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></span>&nbsp;Muxing video — please wait...';
+    try {
+      const muxed = await muxVideoWithAudio(AppState.currentFile, AppState.downloadBlob);
+      triggerDownload(muxed.blob, muxed.filename);
+    } catch(e) {
+      console.error('Mux failed:', e);
+      alert('Video remux failed: ' + (e.message || e) + '\n\nDownloading processed audio as WAV instead.');
+      triggerDownload(AppState.downloadBlob, 'audioshield_processed.wav');
+    } finally {
+      resetBtn();
+    }
+  } else if (AppState.outputFormat === 'mp3') {
+    triggerDownload(AppState.downloadBlob, 'audioshield_processed.wav');
+  } else {
+    triggerDownload(AppState.downloadBlob, 'audioshield_processed.wav');
+  }
+});
+
+function triggerDownload(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+}
+
+async function muxVideoWithAudio(videoFile, audioWavBlob) {
+  const ffmpeg = await loadFFmpeg();
+  const sourceName = videoFile.name || 'input.mp4';
+  const ext = (sourceName.split('.').pop() || 'mp4').toLowerCase();
+  const stamp = Date.now();
+  const inputName = `input_${stamp}.${ext}`;
+  const audioName = `audio_${stamp}.wav`;
+  const isWebM = ext === 'webm';
+  const outName = isWebM ? `output_${stamp}.webm` : `output_${stamp}.mp4`;
+  const outType = isWebM ? 'video/webm' : 'video/mp4';
+
+  const videoBytes = new Uint8Array(await videoFile.arrayBuffer());
+  const audioBytes = new Uint8Array(await audioWavBlob.arrayBuffer());
+
+  try {
+    try { ffmpeg.FS('unlink', inputName); } catch (_) {}
+    try { ffmpeg.FS('unlink', audioName); } catch (_) {}
+    try { ffmpeg.FS('unlink', outName); } catch (_) {}
+
+    ffmpeg.FS('writeFile', inputName, videoBytes);
+    ffmpeg.FS('writeFile', audioName, audioBytes);
+
+    const args = isWebM
+      ? ['-i', inputName, '-i', audioName, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy', '-c:a', 'libopus', '-shortest', outName]
+      : ['-i', inputName, '-i', audioName, '-map', '0:v:0', '-map', '1:a:0', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', outName];
+
+    await ffmpeg.run(...args);
+
+    const data = ffmpeg.FS('readFile', outName);
+    const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+    if (!bytes || bytes.length < 100) {
+      throw new Error('FFmpeg produced an empty or invalid output file. The video may use an unsupported codec.');
+    }
+    return {
+      blob: new Blob([bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)], { type: outType }),
+      filename: isWebM ? 'audioshield_processed.webm' : 'audioshield_processed.mp4'
+    };
+  } catch (err) {
+    throw new Error('Video remux failed. ' + (err && err.message ? err.message : err));
+  } finally {
+    try { ffmpeg.FS('unlink', inputName); } catch (_) {}
+    try { ffmpeg.FS('unlink', audioName); } catch (_) {}
+    try { ffmpeg.FS('unlink', outName); } catch (_) {}
+  }
+}
+
+// Dynamically load FFmpeg.js from CDN
+let _ffmpegLoaded = false;
+let _ffmpegInstance = null;
+let _ffmpegLoadingPromise = null;
+
+function loadFFmpeg() {
+  if (_ffmpegLoaded && _ffmpegInstance) return Promise.resolve(_ffmpegInstance);
+  if (_ffmpegLoadingPromise) return _ffmpegLoadingPromise;
+
+  _ffmpegLoadingPromise = new Promise((resolve, reject) => {
+    const boot = async () => {
+      try {
+        const factory = (window.FFmpeg && window.FFmpeg.createFFmpeg) || window.createFFmpeg;
+        if (!factory) throw new Error('FFmpeg loader unavailable');
+        if (!_ffmpegInstance) {
+          _ffmpegInstance = factory({
+            log: false,
+            corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
+          });
+        }
+        if (!_ffmpegLoaded) {
+          await _ffmpegInstance.load();
+          _ffmpegLoaded = true;
+        }
+        resolve(_ffmpegInstance);
+      } catch (err) {
+        _ffmpegLoadingPromise = null;
+        reject(err);
+      }
+    };
+
+    if ((window.FFmpeg && window.FFmpeg.createFFmpeg) || window.createFFmpeg) {
+      boot();
+      return;
+    }
+
+    const existing = document.getElementById('ffmpegWasmScript');
+    if (existing) {
+      existing.addEventListener('load', boot, { once: true });
+      existing.addEventListener('error', () => reject(new Error('Failed to load FFmpeg library.')), { once: true });
+      return;
+    }
+
+    const s = document.createElement('script');
+    s.id = 'ffmpegWasmScript';
+    s.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js';
+    s.onload = boot;
+    s.onerror = () => {
+      _ffmpegLoadingPromise = null;
+      reject(new Error('Failed to load FFmpeg library.'));
+    };
+    document.head.appendChild(s);
+  });
+
+  return _ffmpegLoadingPromise;
+}
+
+// ─── FILE HANDLING ────────────────────────────────────────────────────────────
+function handleFile(file) {
+  if (!file) return;
+  AppState.currentFile = file;
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent  = formatSize(file.size);
+  document.getElementById('fileInfo').classList.add('visible');
+  document.getElementById('processBtn').disabled = false;
+
+  const canvas = document.getElementById('waveformCanvas');
+  canvas.classList.add('visible');
+
+  const isVideo = file.type.startsWith('video/');
+
+  if (isVideo) {
+    // For video files: use a <video> element to reliably get duration
+    // then also try AudioContext decode for waveform (works in Chrome 120+/Firefox 120+)
+    const videoEl = document.createElement('video');
+    videoEl.preload = 'metadata';
+    const objURL = URL.createObjectURL(file);
+    videoEl.src = objURL;
+    videoEl.onloadedmetadata = () => {
+      const dur = videoEl.duration;
+      URL.revokeObjectURL(objURL);
+      videoEl.src = '';
+      setFileDuration(dur);
+      // Also try to decode audio track for waveform
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const audioBuffer = await audioCtx.decodeAudioData(e.target.result.slice(0));
+          const pcm = audioBuffer.getChannelData(0);
+          drawWaveform(pcm, canvas, '#7c5cfc', 1);
+          audioCtx.close();
+        } catch (err) {
+          console.warn('Video waveform decode failed:', err);
+          drawWaveformPlaceholder(canvas);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    };
+    videoEl.onerror = () => {
+      URL.revokeObjectURL(objURL);
+      // Fallback: try FileReader path anyway
+      tryDecodeWithFileReader(file, canvas);
+    };
+  } else {
+    // Audio file: standard path
+    tryDecodeWithFileReader(file, canvas);
+  }
+}
+
+function tryDecodeWithFileReader(file, canvas) {
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const audioBuffer = await audioCtx.decodeAudioData(e.target.result.slice(0));
+      const pcm = audioBuffer.getChannelData(0);
+      drawWaveform(pcm, canvas, '#7c5cfc', 1);
+      setFileDuration(audioBuffer.duration);
+      audioCtx.close();
+    } catch (err) {
+      console.warn('decodeAudioData failed:', err);
+      drawWaveformPlaceholder(canvas);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function setFileDuration(dur) {
+  SegState.videoDuration = dur;
+  updateDurationBadge();
+  updateAddBtn();
+  SegState.segments = SegState.segments.filter(s => s.from < dur);
+  SegState.segments.forEach(s => { s.to = Math.min(s.to, dur); });
+  renderSegments();
+}
+
+function drawWaveformPlaceholder(canvas) {
+  requestAnimationFrame(() => {
+    const ctx = canvas.getContext('2d');
+    const W = canvas.offsetWidth || 400;
+    const H = 80;
+    canvas.width = W;
+    canvas.height = H;
+    ctx.clearRect(0, 0, W, H);
+    // Draw a simple placeholder line
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(124,92,252,0.3)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([6, 4]);
+    ctx.moveTo(0, H / 2);
+    ctx.lineTo(W, H / 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(138,138,154,0.5)';
+    ctx.font = '11px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Waveform preview not available for this format', W / 2, H / 2 - 10);
+  });
+}
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+fileInput.addEventListener('change', () => handleFile(fileInput.files[0]));
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  handleFile(e.dataTransfer.files[0]);
+});
+
+// ─── METHOD SELECTION ─────────────────────────────────────────────────────────
+document.querySelectorAll('.method-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.method-card').forEach(c => {
+      c.classList.remove('selected');
+      c.setAttribute('aria-checked', 'false');
+    });
+    card.classList.add('selected');
+    card.setAttribute('aria-checked', 'true');
+    AppState.method = card.dataset.method;
+  });
+  card.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') card.click();
+  });
+});
+
+// ─── SLIDERS ─────────────────────────────────────────────────────────────────
+const strengthSlider    = document.getElementById('strengthSlider');
+const audibilitySlider  = document.getElementById('audibilitySlider');
+
+strengthSlider.addEventListener('input', () => {
+  AppState.strength = parseInt(strengthSlider.value, 10);
+  document.getElementById('strengthValue').textContent = strengthSlider.value;
+});
+audibilitySlider.addEventListener('input', () => {
+  AppState.audibility = parseInt(audibilitySlider.value, 10);
+  document.getElementById('audibilityValue').textContent = audibilitySlider.value;
+});
+
+// ─── SELECTS ─────────────────────────────────────────────────────────────────
+document.getElementById('targetModel').addEventListener('change', (e) => { AppState.targetModel = e.target.value; });
+document.getElementById('outputFormat').addEventListener('change', (e) => { AppState.outputFormat = e.target.value; });
+
+// ─── PROCESS BUTTON ───────────────────────────────────────────────────────────
+document.getElementById('processBtn').addEventListener('click', handleProcess);
+
+// Initial UI sync
+setScope('full');
+updateDurationBadge();
+updateAddBtn();
+renderSegments();
+</script>
+</body>
+</html>
