@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A origem do Botox Coreano — Lushé</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,500&family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --page:      #EDE7E0;
+      --ink:       oklch(0.265 0.012 55);
+      --ink-soft:  oklch(0.42 0.012 55);
+      --line-2:    oklch(0.86 0.01 60);
+      --clay-d:    oklch(0.55 0.1 30);
+    }
+
+    html, body { background: var(--page); }
+    body {
+      font-family: 'Schibsted Grotesk', -apple-system, system-ui, sans-serif;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .module {
+      max-width: 460px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .copy {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      font-size: 14.5px;
+      line-height: 1.65;
+      color: var(--ink-soft);
+      max-width: 40ch;
+    }
+    .copy p { hanging-punctuation: first; }
+    .copy p strong { color: var(--ink); font-weight: 600; }
+
+    .term {
+      font-family: 'Bodoni Moda', Georgia, serif;
+      font-style: italic;
+      font-weight: 500;
+      color: var(--clay-d);
+      letter-spacing: -0.005em;
+    }
+
+    .copy p:first-of-type::first-letter {
+      font-family: 'Bodoni Moda', serif;
+      font-weight: 400;
+      font-size: 2.6em;
+      line-height: 0.85;
+      float: left;
+      margin: 4px 8px 0 0;
+      color: var(--clay-d);
+    }
+
+    @media (max-width: 360px) {
+      .module { padding: 0 16px; }
+      .copy { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="module">
+    <div class="copy">
+      <p>O <span class="term">Botox Coreano</span> foi descoberto e popularizado por especialistas focados 100% em mulheres que desejam recuperar o controle do próprio corpo e voltar a sentir-se bem com elas mesmas.</p>
+      <p>Por incrível que pareça, <strong>foram 7 anos de pesquisa</strong>: agora você tem a melhor das fórmulas na palma da sua mão, a chave para rejuvenescer a sua pele em poucos dias.</p>
+    </div>
+  </section>
+</body>
+</html>
