@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sinais de alerta — Lushé</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --page:      #EDE7E0;
+      --surface:   oklch(0.987 0.004 75);
+      --ink:       oklch(0.265 0.012 55);
+      --ink-soft:  oklch(0.46 0.012 55);
+      --ink-faint: oklch(0.62 0.01 60);
+      --line:      oklch(0.905 0.008 65);
+      --line-2:    oklch(0.86 0.01 60);
+
+      --clay:      oklch(0.64 0.095 32);
+      --clay-d:    oklch(0.55 0.1 30);
+      --clay-wash: oklch(0.955 0.018 40);
+      --clay-line: oklch(0.86 0.04 38);
+
+      --sage:      oklch(0.58 0.045 165);
+      --sage-d:    oklch(0.48 0.05 165);
+      --sage-wash: oklch(0.955 0.02 165);
+      --sage-line: oklch(0.86 0.03 165);
+    }
+
+    html, body { background: var(--page); }
+    body {
+      font-family: 'Schibsted Grotesk', -apple-system, system-ui, sans-serif;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+
+    .module {
+      max-width: 460px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ─── Alert banner (top) ─── */
+    .alert {
+      background: var(--clay-wash);
+      border: 1px solid var(--clay-line);
+      border-radius: 14px;
+      padding: 16px 16px 16px 14px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 13px;
+      align-items: flex-start;
+    }
+    .alert .ico {
+      width: 22px; height: 22px; color: var(--clay-d);
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .alert h3 {
+      font-family: 'Bodoni Moda', Georgia, serif;
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 1.25;
+      letter-spacing: -0.005em;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .alert p {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.55;
+    }
+
+    /* ─── Section divider with eyebrow ─── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 22px 0 14px;
+    }
+    .divider hr {
+      flex: 1;
+      border: 0;
+      height: 1px;
+      background: var(--line-2);
+    }
+    .divider .eyebrow {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--clay-d);
+      white-space: nowrap;
+    }
+
+    /* ─── List cards ─── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+    }
+    .card + .card { margin-top: 12px; }
+    .card.benefits {
+      background: var(--sage-wash);
+      border-color: var(--sage-line);
+    }
+    .card h4 {
+      font-family: 'Bodoni Moda', serif;
+      font-weight: 500;
+      font-size: 14.5px;
+      line-height: 1.3;
+      color: var(--ink);
+      margin-bottom: 10px;
+      letter-spacing: -0.005em;
+    }
+    .card h4 em { font-style: italic; color: var(--sage-d); }
+
+    .list { display: flex; flex-direction: column; }
+    .list li {
+      list-style: none;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 11px;
+      align-items: center;
+      padding: 9px 0;
+      font-size: 13.5px;
+      color: var(--ink);
+      letter-spacing: 0.005em;
+    }
+    .list li + li { border-top: 1px solid var(--line); }
+    .card.benefits .list li + li { border-top-color: var(--sage-line); }
+
+    .marker {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .marker svg { width: 12px; height: 12px; stroke-width: 2.2; }
+    .marker.x {
+      background: var(--surface);
+      border: 1px solid var(--clay-line);
+      color: var(--clay-d);
+    }
+    .marker.v {
+      background: var(--sage);
+      color: var(--surface);
+    }
+    .marker.v svg { stroke-width: 2.4; }
+
+    @media (max-width: 360px) {
+      .module { padding: 0 16px; }
+      .alert h3, .card h4 { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="module">
+
+    <div class="alert" role="note">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <div>
+        <h3>Seu rosto está perdendo sustentação silenciosamente</h3>
+        <p>Mesmo com seus cuidados habituais, fatores invisíveis enfraquecem a musculatura facial e aprofundam rugas e linhas de expressão.</p>
+      </div>
+    </div>
+
+    <div class="divider">
+      <hr aria-hidden="true">
+      <span class="eyebrow">Principais sinais de alerta</span>
+      <hr aria-hidden="true">
+    </div>
+
+    <div class="card">
+      <ul class="list">
+        <li>
+          <span class="marker x" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </span>
+          Flacidez progressiva
+        </li>
+        <li>
+          <span class="marker x" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </span>
+          Queda nas bochechas
+        </li>
+        <li>
+          <span class="marker x" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </span>
+          Olhar cansado
+        </li>
+        <li>
+          <span class="marker x" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </span>
+          Testa marcada
+        </li>
+      </ul>
+    </div>
+
+    <div class="card benefits">
+      <h4>O fortalecimento facial <em>estratégico</em> vai:</h4>
+      <ul class="list">
+        <li>
+          <span class="marker v" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          Reativar a produção de colágeno
+        </li>
+        <li>
+          <span class="marker v" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          Fortalecer a musculatura
+        </li>
+        <li>
+          <span class="marker v" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          Melhorar a firmeza
+        </li>
+        <li>
+          <span class="marker v" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          Rejuvenescer o aspecto da pele
+        </li>
+      </ul>
+    </div>
+
+  </section>
+</body>
+</html>
